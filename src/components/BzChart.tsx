@@ -24,7 +24,7 @@ type Props = {
     period?: string;
 };
 
-function BzChart({ data, period = "7 Days" }: Props) {
+function BzChart({ data }: Props) {
   const chartData: ChartData[] = data
     .filter(d => d.bz !== null)
     .map((d, index) => ({

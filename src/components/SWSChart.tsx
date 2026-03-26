@@ -24,7 +24,7 @@ type Props = {
     period?: string;
 };
 
-function SWSChart({ data, period = "7 Days" }: Props) {
+function SWSChart({ data }: Props) {
   const chartData: ChartData[] = data
     .filter(d => d.speed !== null)
     .map((d, index) => ({
