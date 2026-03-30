@@ -11,7 +11,7 @@ function cn(...parts: Array<string | false | null | undefined>) {
 	return parts.filter(Boolean).join(' ')
 }
 
-const base = 'rounded-xl p-6 shadow-sm border'
+const base = 'rounded-sm p-6 shadow-sm border'
 const variants: Record<CardVariant, string> = {
 	light: 'bg-white text-black border-neutral-200',
 	dark: 'bg-black text-white border-black',

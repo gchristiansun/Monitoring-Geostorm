@@ -341,11 +341,9 @@ export default function Dataset() {
 
   return (
     <Layout>
-      <div className="flex w-full justify-between items-start">
-        <h1 className="text-2xl font-semibold mb-4">Dataset</h1>
-        <Dropdown
-          onSelect={(period) => setSelected(period)}
-        />
+      <div className="flex flex-row items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Dataset</h1>
+        <Dropdown onSelect={(period) => setSelected(period)} />
       </div>
 
       <div className="flex flex-col gap-3">

@@ -136,6 +136,52 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, []);
 
+  //   const formatDate = (date: Date) =>
+  // date.toISOString().split("T")[0];
+
+    const analyzeStorm = (data: DSTData[]) => {
+      // pastikan urut waktu
+      const sorted = [...data].sort(
+        (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
+      );
+
+      for (let i = 0; i < sorted.length; i++) {
+        if (sorted[i].dst <= -100) {
+          // cari onset (peak sebelum drop)
+          let maxDst = sorted[i].dst;
+          let onsetIndex = i;
+
+          for (let j = i - 1; j >= 0; j--) {
+            if (sorted[j].dst > maxDst) {
+              maxDst = sorted[j].dst;
+              onsetIndex = j;
+            } else {
+              break;
+            }
+          }
+
+          const onset = sorted[onsetIndex];
+          const trigger = sorted[i];
+
+          const onsetTime = new Date(onset.datetime).getTime();
+          const triggerTime = new Date(trigger.datetime).getTime();
+
+          const diffHours = (triggerTime - onsetTime) / (1000 * 60 * 60);
+
+          const remaining = 10 - diffHours;
+
+          return {
+            onset,
+            trigger,
+            durationHours: diffHours,
+            remainingHours: remaining,
+          };
+        }
+      }
+
+      return null;
+    };
+
     const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
         const now = new Date();
 
@@ -144,6 +190,13 @@ export default function Dashboard() {
             const dt = new Date(d.datetime);
             return dt.toDateString() === now.toDateString();
         });
+        // if (period === "Today") {
+        //   const todayStr = formatDate(new Date());
+
+        //   return allData.filter(d => {
+        //     const dt = new Date(d.datetime);
+        //     return formatDate(dt) === todayStr;
+        // })
         } else if (period === "7 Days") {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(now.getDate() - 6); 
@@ -235,15 +288,26 @@ export default function Dashboard() {
   const status = getLatestDSTStatus(dstData);
   const swStatus = getLatestSWStatus(swData);
   const bzStatus = getLatestBzStatus(bzData);
+  const dummyDstData: DSTData[] = [
+    { datetime: "2026-03-30T00:00:00Z", dst: -20, day: 30, hour: 0 },
+    { datetime: "2026-03-30T01:00:00Z", dst: -10, day: 30, hour: 1 },
+    { datetime: "2026-03-30T02:00:00Z", dst: -5,  day: 30, hour: 2 },
+    { datetime: "2026-03-30T03:00:00Z", dst: -15, day: 30, hour: 3 },
+    { datetime: "2026-03-30T04:00:00Z", dst: -50, day: 30, hour: 4 },
+    { datetime: "2026-03-30T05:00:00Z", dst: -80, day: 30, hour: 5 },
+    { datetime: "2026-03-30T06:00:00Z", dst: -10, day: 30, hour: 6 },
+  ];
+  // const result = analyzeStorm(dstData);
+  const result = analyzeStorm(dummyDstData)
 
   return (
     <Layout>
-      <div className="flex w-full justify-between items-start">
-        <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
-        <Dropdown onSelect={(period) => setSelected(period)}/>
+      <div className="flex flex-row items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <Dropdown onSelect={(period) => setSelected(period)} />
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 xl:grid-cols-3">
         <Card>
           <div className="flex justify-between">
             Dst Index:
@@ -284,12 +348,41 @@ export default function Dashboard() {
 
       <div className="flex flex-col gap-3">
         <Card>
+          <h2 className="font-semibold text-lg mb-2">Storm Analysis</h2>
+
+          {!result ? (
+            <p className="text-sm text-gray-500">No storm detected</p>
+          ) : (
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="font-medium">Onset:</span>{" "}
+                {new Date(result.onset.datetime).toLocaleString()}
+              </p>
+
+              <p>
+                <span className="font-medium">Trigger (-100):</span>{" "}
+                {new Date(result.trigger.datetime).toLocaleString()}
+              </p>
+
+              <p>
+                <span className="font-medium">Duration:</span>{" "}
+                {result.durationHours.toFixed(2)} hours
+              </p>
+
+              <p>
+                <span className="font-medium">Remaining:</span>{" "}
+                {Math.max(0, result.remainingHours).toFixed(2)} hours
+              </p>
+            </div>
+          )}
+        </Card>
+        <Card>
           <h2 className="font-semibold">Dst</h2>
           <br />
           {dstLoading ? (
             <div className="text-center"><LoadingSpinner size={30}/></div>
           ) : filteredData.length === 0 ? (
-            <div className="text-center m-10">No Data Available</div>
+            <div className="text-center m-10">No data available</div>
           ) : (
             <DSTChart data={filteredData} period={selected} />
           )}
@@ -300,7 +393,7 @@ export default function Dashboard() {
           {swLoading ? (
             <div className="text-center"><LoadingSpinner size={30}/></div>
           ) : filteredSWSData.length === 0 ? (
-            <div className="text-center m-10">No Data Available</div>
+            <div className="text-center m-10">No data available</div>
           ) : (
             <SWSChart data={filteredSWSData} period={selected} />
           )}
@@ -311,7 +404,7 @@ export default function Dashboard() {
           {bzLoading ? (
             <div className="text-center"><LoadingSpinner size={30}/></div>
           ) : filteredBzData.length === 0 ? (
-            <div className="text-center m-10">No Data Available</div>
+            <div className="text-center m-10">No data available</div>
           ) : (
             <BzChart data={filteredBzData} period={selected} />
           )}
