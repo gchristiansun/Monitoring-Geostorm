@@ -236,7 +236,6 @@
 
 import axios from "axios";
 
-// 🔥 helper URL
 function getDSTUrl(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -247,7 +246,6 @@ function getDSTUrl(date) {
   };
 }
 
-// 🔥 parse header DST (DST2603*01...)
 function parseDSTHeader(line) {
   try {
     const yy = Number(line.substring(3, 5));
@@ -271,8 +269,7 @@ export default async function handler(req, res) {
     const now = new Date();
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(now.getDate() - 7);
-
-    // 🔥 smart source (hindari fetch berlebih)
+    
     const sources = [
       getDSTUrl(now),
       ...(now.getMonth() !== sevenDaysAgo.getMonth()
@@ -354,7 +351,7 @@ export default async function handler(req, res) {
 
     console.log("TOTAL RAW:", allData.length);
     console.log("UNIQUE:", uniqueData.length);
-    console.log("FINAL (7 DAYS):", filtered.slice(0, 300));
+    console.log("FINAL (7 DAYS):", filtered.slice(0, 1000));
 
     res.status(200).json({
       updated: new Date().toISOString(),

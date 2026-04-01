@@ -59,12 +59,12 @@ function DSTChart({ data, period = "7 Days" }: Props) {
   //   };
   // });
 
-  const dayTicks = chartData
-  .map((d, i) => ({ day: d.day, index: i }))
-  .filter((item, i, arr) => {
-    return i === 0 || item.day !== arr[i - 1].day;
-  })
-  .map((item) => item.index);
+  // const dayTicks = chartData
+  // .map((d, i) => ({ day: d.day, index: i }))
+  // .filter((item, i, arr) => {
+  //   return i === 0 || item.day !== arr[i - 1].day;
+  // })
+  // .map((item) => item.index);
 
   return (    
     <ResponsiveContainer width="100%" height={400} className='focus:b-0 onClick:b-0'>

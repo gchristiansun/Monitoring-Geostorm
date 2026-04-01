@@ -4,6 +4,9 @@ import Card from "../components/Card";
 import Dropdown from "../components/DropdownButton";
 import LoadingSpinner from "../components/LoadingSpinner";
 import DataTable from "../components/DataTable";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import Button from "../components/Button";
+import ConvertToCSV from "../components/DownloadCSV";
 
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -348,7 +351,12 @@ export default function Dataset() {
 
       <div className="flex flex-col gap-3">
         <Card>
-          <h2 className="font-semibold">Dst</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="font-semibold">Dst</h2>
+            <Button className="bg-red-500 hover:bg-red-500" onClick={() => ConvertToCSV(filteredDstData, "dst", selected)}>
+              <ArrowDownTrayIcon className="w-4 h-4" />
+            </Button>
+          </div>
           <br />
 
           {loading ? (
@@ -363,7 +371,12 @@ export default function Dataset() {
           )}
         </Card>
         <Card>
-          <h2 className="font-semibold">Solar Wind</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="font-semibold">Solar Wind</h2>
+            <Button className="bg-red-500 hover:bg-red-500" onClick={() => ConvertToCSV(filteredSWSData, "solarwind", selected)}>
+              <ArrowDownTrayIcon className="w-4 h-4" />            
+            </Button>
+          </div>
           <br />
 
           {loading ? (
@@ -378,7 +391,12 @@ export default function Dataset() {
           )}
         </Card>
         <Card>
-          <h2 className="font-semibold">IMF</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="font-semibold">IMF</h2>
+            <Button className="bg-red-500 hover:bg-red-500" onClick={() => ConvertToCSV(filteredIMFData, "imf", selected)}>
+              <ArrowDownTrayIcon className="w-4 h-4" />
+            </Button>
+          </div>
           <br />
 
           {loading ? (
