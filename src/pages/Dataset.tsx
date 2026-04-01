@@ -73,7 +73,7 @@ const columnsSWS: ColumnDef<SolarWindData>[] = [
     accessorKey: "temperature",
     header: "Temperature (K)",
     cell: ({ getValue }) =>
-      getValue() != null ? Number(getValue()).toExponential(2) : "N/A",
+      getValue() != null ? Number(getValue()).toFixed(0) : "N/A",
   },
 ];
 

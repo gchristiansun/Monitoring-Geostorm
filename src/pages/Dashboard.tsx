@@ -24,8 +24,8 @@ type BzData = {
     bz: number | null
 }
 
-type DSTStatus = "Quiet" | "Warning" | "Moderate" | "-";
-type SWStatus = "Slow" | "Normal" | "Fast" | "-";
+type DSTStatus = "Severe Storm" | "Major Storm" | "Moderate Storm" | "Minor Storm" | "Active" | "Quiet" | "-";
+type SWStatus = "HSSWS" | "Quiet" | "-";
 type BzStatus = "Quiet" | "Warning" | "-";
 
 function getLatestDSTStatus(data: DSTData[]): DSTStatus {
@@ -33,8 +33,11 @@ function getLatestDSTStatus(data: DSTData[]): DSTStatus {
 
     const last = data.at(-1)!; // pasti ada karena data.length > 0
 
-    if (last.dst <= -100) return "Moderate";
-    if (last.dst <= -50) return "Warning";
+    if (last.dst <= -246) return "Severe Storm";
+    if (last.dst <= -140) return "Major Storm";
+    if (last.dst <= -80) return "Moderate Storm";
+    if (last.dst <= -45) return "Minor Storm";
+    if (last.dst <= -26) return "Active"
     return "Quiet";
 }
 
@@ -44,9 +47,8 @@ function getLatestSWStatus(data: SWData[]): SWStatus {
     const last = data.at(-1)!; // pasti ada karena data.length > 0
 
     if (last.speed === null) return "-";
-    if (last.speed >= 600) return "Fast";
-    if (last.speed >= 400) return "Normal";
-    return "Slow";
+    if (last.speed > 6500) return "HSSWS";
+    return "Quiet";
 }
 
 function getLatestBzStatus(data: BzData[]): BzStatus {
@@ -55,8 +57,8 @@ function getLatestBzStatus(data: BzData[]): BzStatus {
     const last = data.at(-1)!; // pasti ada karena data.length > 0
 
     if (last.bz === null) return "-";
-    if (last.bz > -10) return "Quiet";
-    return "Warning";
+    if (last.bz <= -10 || last.bz >= 10) return "Warning";
+    return "Quiet";
 }
 
 export default function Dashboard() {
@@ -183,41 +185,78 @@ export default function Dashboard() {
     };
 
     const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
-        const now = new Date();
+  const now = new Date();
+  const nowTime = now.getTime();
 
-        if (period === "Today") {
-        return allData.filter(d => {
-            const dt = new Date(d.datetime);
-            return dt.toDateString() === now.toDateString();
-        });
-        // if (period === "Today") {
-        //   const todayStr = formatDate(new Date());
+  if (period === "Today") {
+    return allData.filter(d => {
+      const dt = new Date(d.datetime);
 
-        //   return allData.filter(d => {
-        //     const dt = new Date(d.datetime);
-        //     return formatDate(dt) === todayStr;
-        // })
-        } else if (period === "7 Days") {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(now.getDate() - 6); 
-        sevenDaysAgo.setHours(0, 0, 0, 0);
+      return (
+        dt.getUTCFullYear() === now.getUTCFullYear() &&
+        dt.getUTCMonth() === now.getUTCMonth() &&
+        dt.getUTCDate() === now.getUTCDate()
+      );
+    });
+  }
 
-        return allData.filter(d => {
-            const dt = new Date(d.datetime);
-            return dt >= sevenDaysAgo && dt <= now;
-        });
-        } else if (period === "3 Days") {
-        const threeDaysAgo =  new Date();
-        threeDaysAgo.setDate(now.getDate() - 2);
-        threeDaysAgo.setHours(0, 0, 0, 0);
+  if (period === "7 Days") {
+    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
-        return allData.filter(d => {
-            const dt = new Date(d.datetime);
-            return dt >= threeDaysAgo && dt <= now
-        })
-        }
-        return allData;
-    };
+    return allData.filter(d => {
+      const dt = new Date(d.datetime).getTime();
+      return nowTime - dt <= SEVEN_DAYS;
+    });
+  }
+
+  if (period === "3 Days") {
+    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+
+    return allData.filter(d => {
+      const dt = new Date(d.datetime).getTime();
+      return nowTime - dt <= THREE_DAYS;
+    });
+  }
+
+  return allData;
+};
+
+    // const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
+    //     const now = new Date();
+
+    //     if (period === "Today") {
+    //     return allData.filter(d => {
+    //         const dt = new Date(d.datetime);
+    //         return dt.toDateString() === now.toDateString();
+    //     });
+    //     // if (period === "Today") {
+    //     //   const todayStr = formatDate(new Date());
+
+    //     //   return allData.filter(d => {
+    //     //     const dt = new Date(d.datetime);
+    //     //     return formatDate(dt) === todayStr;
+    //     // })
+    //     } else if (period === "7 Days") {
+    //     const sevenDaysAgo = new Date();
+    //     sevenDaysAgo.setDate(now.getDate() - 6); 
+    //     sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    //     return allData.filter(d => {
+    //         const dt = new Date(d.datetime);
+    //         return dt >= sevenDaysAgo && dt <= now;
+    //     });
+    //     } else if (period === "3 Days") {
+    //     const threeDaysAgo =  new Date();
+    //     threeDaysAgo.setDate(now.getDate() - 2);
+    //     threeDaysAgo.setHours(0, 0, 0, 0);
+
+    //     return allData.filter(d => {
+    //         const dt = new Date(d.datetime);
+    //         return dt >= threeDaysAgo && dt <= now
+    //     })
+    //     }
+    //     return allData;
+    // };
 
     const getFilteredSWData = (allData: SWData[], period: string): SWData[] => {
         const now = new Date();
@@ -295,10 +334,13 @@ export default function Dashboard() {
     { datetime: "2026-03-30T03:00:00Z", dst: -15, day: 30, hour: 3 },
     { datetime: "2026-03-30T04:00:00Z", dst: -50, day: 30, hour: 4 },
     { datetime: "2026-03-30T05:00:00Z", dst: -80, day: 30, hour: 5 },
-    { datetime: "2026-03-30T06:00:00Z", dst: -10, day: 30, hour: 6 },
+    { datetime: "2026-03-30T06:00:00Z", dst: -120, day: 30, hour: 6 },
   ];
   // const result = analyzeStorm(dstData);
   const result = analyzeStorm(dummyDstData)
+  const lastDstData = dstData.at(-1);
+  const lastSwData = swData.at(-1);
+  const lastBzData = bzData.at(-1);
 
   return (
     <Layout>
@@ -311,7 +353,7 @@ export default function Dashboard() {
         <Card>
           <div className="flex justify-between">
             Dst Index:
-            <p className="font-bold">{dstData.at(-1)?.dst ?? "-"} nT</p>
+            <p className="font-bold">{lastDstData?.dst ?? "-"} nT</p>
           </div>
           <div className="flex justify-between">
             <p>Status:</p>
@@ -319,11 +361,45 @@ export default function Dashboard() {
               <p>{status}</p>
             </div>
           </div>
+          <div className="flex justify-between">
+            <p>Date</p>
+            <div>
+              {/* <p>{dstData.at(-1)?.dateti}</p> */}
+            </div>
+          </div>
         </Card>
         <Card>
           <div className="flex justify-between">
             Solar Wind Speed:
-            <p className="font-bold">{swData.at(-1)?.speed ?? "-"} Km/s</p>
+            <p className="font-bold">{lastSwData?.speed ?? "-"} Km/s</p>
+          </div>          
+          <div className="flex justify-between">
+            <p>Date:</p>
+            <div>
+              <p>
+                {lastSwData?.time
+                  ? lastSwData!.time.toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "long",
+                    })
+                  : "-"}
+              </p>
+            </div>  
+          </div>
+          <div className="flex justify-between">
+            <p>Time</p>
+            <div>
+              <p>
+                {lastSwData?.time
+                  ? lastSwData!.time.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })
+                  : "-"
+                }                
+              </p>
+            </div>
           </div>
           <div className="flex justify-between">
             <p>Status:</p>
@@ -335,15 +411,45 @@ export default function Dashboard() {
         <Card>
           <div className="flex justify-between">
             IMF Bz:
-            <p className="font-bold">{bzData.at(-1)?.bz ?? "-"} nT</p>
-          </div>       
+            <p className="font-bold">{lastBzData?.bz ?? "-"} nT</p>
+          </div>                  
+          <div className="flex justify-between">
+            <p>Date:</p>
+            <div>
+              <p>{
+                lastBzData?.time
+                  ? lastBzData!.time.toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "long",
+                  })
+                  : "-"
+                }
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-between">
+              <p>Time:</p>
+              <div>
+                <p>
+                  {
+                    lastBzData?.time
+                      ? lastBzData!.time.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                      })
+                    : "-"
+                  }
+                </p>
+              </div>
+          </div>
           <div className="flex justify-between">
             <p>Status:</p>  
             <div>
               <p>{bzStatus}</p>
             </div>
-          </div>  
-        </Card>
+          </div> 
+        </Card>        
       </div>
 
       <div className="flex flex-col gap-3">
