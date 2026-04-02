@@ -61,12 +61,15 @@ function DSTChart({ data, period = "7 Days" }: Props) {
     })
     .map((item) => item.index)
 
- const hourTicks = chartData
-  .map((d, i) => ({ hour: getWibHour(d.time), index: i}))
-  .filter((item, i, arr) => {
-    return i === 0 || item.hour !== arr[i - 1].hour;
-  })
-  .map((item) => item.index);
+  const hourTicks = chartData
+    .map((d, i) => ({ hour: getWibHour(d.time), index: i}))
+    .filter((item, i, arr) => {
+      const isNewhour = i === 0 || item.hour !== arr[i - 1].hour;
+      const isInterval = item.hour % 1 === 0;
+
+      return isNewhour && isInterval;
+    }) 
+    .map((item) => item.index)
 
   const activeTicks = period === "Today" ? hourTicks : dayTicks
 

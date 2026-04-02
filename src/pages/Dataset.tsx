@@ -12,8 +12,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 type DSTData = {
   datetime: string;
-  day: number | null;
-  hour: number | null;
+  // day: number | null;
+  // hour: number | null;
   dst: number | null;
 }
 
@@ -65,16 +65,16 @@ const columnsDst: ColumnDef<DSTData>[] = [
     header: "Time",
     cell: ({ getValue }) => formatWibDateTime(getValue() as string),
   }, 
-  {
-    accessorKey: "day",
-    header: "Day",
-    cell: ({ getValue }) => getValue() != null ? Number(getValue()).toFixed(0) : "N/A"
-  },
-  {
-    accessorKey: "hour",
-    header: "Hour",
-    cell: ({ getValue }) => getValue() != null ? Number(getValue()).toFixed(2) : "N/A"
-  },
+  // {
+  //   accessorKey: "day",
+  //   header: "Day",
+  //   cell: ({ getValue }) => getValue() != null ? Number(getValue()).toFixed(0) : "N/A"
+  // },
+  // {
+  //   accessorKey: "hour",
+  //   header: "Hour",
+  //   cell: ({ getValue }) => getValue() != null ? Number(getValue()).toFixed(2) : "N/A"
+  // },
   {
     accessorKey: "dst",
     header: "Dst (nT)",

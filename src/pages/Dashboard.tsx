@@ -51,7 +51,7 @@ function getLatestSWStatus(data: SWData[]): SWStatus {
     const last = data.at(-1)!;
 
     if (last.speed === null) return "-";
-    if (last.speed > 6500) return "HSSWS";
+    if (last.speed > 500) return "HSSWS";
     return "Quiet";
 }
 
