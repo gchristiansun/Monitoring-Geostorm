@@ -17,7 +17,7 @@ async function fetchIMFBz() {
       };
 
       return {
-        time: new Date(row[0]),
+        time: new Date(row[0] + "Z"),
         bx: parse(row[1]),
         by: parse(row[2]),
         bz: parse(row[3]),

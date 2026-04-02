@@ -313,8 +313,8 @@ export default async function handler(req, res) {
 
               allData.push({
                 datetime: dateObj.toISOString(), // UTC
-                day,
-                hour: i,
+                // day,
+                // hour: i,
                 dst: value,
               });
             }

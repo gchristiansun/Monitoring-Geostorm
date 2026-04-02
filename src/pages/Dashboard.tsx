@@ -7,21 +7,24 @@ import SWSChart from "../components/SWSChart";
 import BzChart from "../components/BzChart";
 import LoadingSpinner from "../components/LoadingSpinner";
 
+type APIDSTData = {
+  datetime: string;
+  dst: number;
+};
+
 type DSTData = {
-    datetime: string;
-    day: number;
-    hour: number;
-    dst: number;
+  time: Date;
+  dst: number;
 };
 
 type SWData = {
-    time: Date;
-    speed: number | null;
+  time: Date;
+  speed: number | null;
 };
 
 type BzData = {
-    time: Date;
-    bz: number | null
+  time: Date;
+  bz: number | null
 }
 
 type DSTStatus = "Severe Storm" | "Major Storm" | "Moderate Storm" | "Minor Storm" | "Active" | "Quiet" | "-";
@@ -31,7 +34,7 @@ type BzStatus = "Quiet" | "Warning" | "-";
 function getLatestDSTStatus(data: DSTData[]): DSTStatus {
     if (!data.length) return "-";
 
-    const last = data.at(-1)!; // pasti ada karena data.length > 0
+    const last = data.at(-1)!;
 
     if (last.dst <= -246) return "Severe Storm";
     if (last.dst <= -140) return "Major Storm";
@@ -44,7 +47,7 @@ function getLatestDSTStatus(data: DSTData[]): DSTStatus {
 function getLatestSWStatus(data: SWData[]): SWStatus {
     if (!data.length) return "-";
 
-    const last = data.at(-1)!; // pasti ada karena data.length > 0
+    const last = data.at(-1)!;
 
     if (last.speed === null) return "-";
     if (last.speed > 6500) return "HSSWS";
@@ -54,7 +57,7 @@ function getLatestSWStatus(data: SWData[]): SWStatus {
 function getLatestBzStatus(data: BzData[]): BzStatus {
     if (!data.length) return "-";
 
-    const last = data.at(-1)!; // pasti ada karena data.length > 0
+    const last = data.at(-1)!; 
 
     if (last.bz === null) return "-";
     if (last.bz <= -10 || last.bz >= 10) return "Warning";
@@ -78,8 +81,12 @@ export default function Dashboard() {
         fetch("/api/dst-scrapper")
             .then((res) => res.json())
             .then((res) => {
-            setDstData(res.data);
-            setDstLoading(false);
+              const parsed: DSTData[] = res.data.map((d: APIDSTData) => ({
+                time: new Date(d.datetime),
+                dst: d.dst,
+              }));
+              setDstData(parsed);
+              setDstLoading(false);
             })
             .catch((err) => {
             console.error(err);
@@ -111,7 +118,7 @@ export default function Dashboard() {
         };
 
         fetchSWData();
-        const interval = setInterval(fetchSWData, 300000); // Update every 5 minutes
+        const interval = setInterval(fetchSWData, 300000); 
         return () => clearInterval(interval);
     }, []);
 
@@ -134,7 +141,7 @@ export default function Dashboard() {
         };
 
         fetchBzData();
-        const interval = setInterval(fetchBzData, 300000); // Update every 5 minutes
+        const interval = setInterval(fetchBzData, 300000); 
         return () => clearInterval(interval);
     }, []);
 
@@ -144,7 +151,7 @@ export default function Dashboard() {
     const analyzeStorm = (data: DSTData[]) => {
       // pastikan urut waktu
       const sorted = [...data].sort(
-        (a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
+        (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
       );
 
       for (let i = 0; i < sorted.length; i++) {
@@ -165,8 +172,8 @@ export default function Dashboard() {
           const onset = sorted[onsetIndex];
           const trigger = sorted[i];
 
-          const onsetTime = new Date(onset.datetime).getTime();
-          const triggerTime = new Date(trigger.datetime).getTime();
+          const onsetTime = new Date(onset.time).getTime();
+          const triggerTime = new Date(trigger.time).getTime();
 
           const diffHours = (triggerTime - onsetTime) / (1000 * 60 * 60);
 
@@ -184,65 +191,21 @@ export default function Dashboard() {
       return null;
     };
 
-    const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
-  const now = new Date();
-  const nowTime = now.getTime();
-
-  if (period === "Today") {
-    return allData.filter(d => {
-      const dt = new Date(d.datetime);
-
-      return (
-        dt.getUTCFullYear() === now.getUTCFullYear() &&
-        dt.getUTCMonth() === now.getUTCMonth() &&
-        dt.getUTCDate() === now.getUTCDate()
-      );
-    });
-  }
-
-  if (period === "7 Days") {
-    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-
-    return allData.filter(d => {
-      const dt = new Date(d.datetime).getTime();
-      return nowTime - dt <= SEVEN_DAYS;
-    });
-  }
-
-  if (period === "3 Days") {
-    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
-
-    return allData.filter(d => {
-      const dt = new Date(d.datetime).getTime();
-      return nowTime - dt <= THREE_DAYS;
-    });
-  }
-
-  return allData;
-};
-
     // const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
     //     const now = new Date();
 
     //     if (period === "Today") {
     //     return allData.filter(d => {
-    //         const dt = new Date(d.datetime);
+    //         const dt = new Date(d.time);
     //         return dt.toDateString() === now.toDateString();
     //     });
-    //     // if (period === "Today") {
-    //     //   const todayStr = formatDate(new Date());
-
-    //     //   return allData.filter(d => {
-    //     //     const dt = new Date(d.datetime);
-    //     //     return formatDate(dt) === todayStr;
-    //     // })
     //     } else if (period === "7 Days") {
     //     const sevenDaysAgo = new Date();
     //     sevenDaysAgo.setDate(now.getDate() - 6); 
     //     sevenDaysAgo.setHours(0, 0, 0, 0);
 
     //     return allData.filter(d => {
-    //         const dt = new Date(d.datetime);
+    //         const dt = new Date(d.time);
     //         return dt >= sevenDaysAgo && dt <= now;
     //     });
     //     } else if (period === "3 Days") {
@@ -251,38 +214,95 @@ export default function Dashboard() {
     //     threeDaysAgo.setHours(0, 0, 0, 0);
 
     //     return allData.filter(d => {
-    //         const dt = new Date(d.datetime);
+    //         const dt = new Date(d.time);
     //         return dt >= threeDaysAgo && dt <= now
     //     })
     //     }
     //     return allData;
     // };
 
+    const getWibStartOfDayUtc = (date: Date): number => {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Jakarta",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        hour12: false,
+      }).formatToParts(date);
+
+      const year = Number(parts.find((part) => part.type === "year")?.value ?? 0);
+      const month = Number(parts.find((part) => part.type === "month")?.value ?? 0);
+      const day = Number(parts.find((part) => part.type === "day")?.value ?? 0);
+
+      return Date.UTC(year, month - 1, day, -7, 0, 0);
+    };
+
+    const getWibStartTime = (now: Date, daysAgo: number): number => {
+      const startOfToday = getWibStartOfDayUtc(now);
+      return startOfToday - daysAgo * 24 * 60 * 60 * 1000;
+    };
+
+    const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
+  const now = new Date();
+  const nowTime = now.getTime();
+
+  if (period === "Today") {
+    const startUTC = getWibStartTime(now, 0);
+
+    return allData.filter(d => {
+      const t = new Date(d.time).getTime();
+      return t >= startUTC && t <= nowTime;
+    });
+  }
+
+  if (period === "3 Days") {
+    const startUTC = getWibStartTime(now, 2);
+
+    return allData.filter(d => {
+      const t = new Date(d.time).getTime();
+      return t >= startUTC && t <= nowTime;
+    });
+  }
+
+  if (period === "7 Days") {
+    const startUTC = getWibStartTime(now, 6);
+
+    return allData.filter(d => {
+      const t = new Date(d.time).getTime();
+      return t >= startUTC && t <= nowTime;
+    });
+  }
+
+  return allData;
+};
+
     const getFilteredSWData = (allData: SWData[], period: string): SWData[] => {
         const now = new Date();
+        const nowTime = now.getTime();
 
         if (period === "Today") {
+            const startUTC = getWibStartTime(now, 0);
+
             return allData.filter(d => {
-            const dt = new Date(d.time);
-            return dt.toDateString() === now.toDateString();
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
             });
         } else if (period === "7 Days") {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(now.getDate() - 6);
-            sevenDaysAgo.setHours(0, 0, 0, 0);
+            const startUTC = getWibStartTime(now, 6);
 
             return allData.filter(d => {
-            const dt = new Date(d.time);
-            return dt >= sevenDaysAgo && dt <= now;
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
             });
         } else if (period === "3 Days") {
-            const threeDaysAgo = new Date();
-            threeDaysAgo.setDate(now.getDate() - 2);
-            threeDaysAgo.setHours(0, 0, 0, 0);
+            const startUTC = getWibStartTime(now, 2);
 
             return allData.filter(d => {
-            const dt = new Date(d.time);
-            return dt >= threeDaysAgo && dt <= now;
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
             });
         }
 
@@ -291,29 +311,28 @@ export default function Dashboard() {
 
     const getFilteredBzData = (allData: BzData[], period: string): BzData[] => {
         const now = new Date();
+        const nowTime = now.getTime();
 
         if (period === "Today") {
+            const startUTC = getWibStartTime(now, 0);
+
             return allData.filter(d => {
-            const dt = new Date(d.time);
-            return dt.toDateString() === now.toDateString();
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
             });
         } else if (period === "7 Days") {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(now.getDate() - 6);
-            sevenDaysAgo.setHours(0, 0, 0, 0);
+            const startUTC = getWibStartTime(now, 6);
 
             return allData.filter(d => {
-            const dt = new Date(d.time);
-            return dt >= sevenDaysAgo && dt <= now;
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
             });
         } else if (period === "3 Days") {
-            const threeDaysAgo = new Date();
-            threeDaysAgo.setDate(now.getDate() - 2);
-            threeDaysAgo.setHours(0, 0, 0, 0);
+            const startUTC = getWibStartTime(now, 2);
 
             return allData.filter(d => {
-            const dt = new Date(d.time);
-            return dt >= threeDaysAgo && dt <= now;
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
             });
         }
 
@@ -327,17 +346,17 @@ export default function Dashboard() {
   const status = getLatestDSTStatus(dstData);
   const swStatus = getLatestSWStatus(swData);
   const bzStatus = getLatestBzStatus(bzData);
-  const dummyDstData: DSTData[] = [
-    { datetime: "2026-03-30T00:00:00Z", dst: -20, day: 30, hour: 0 },
-    { datetime: "2026-03-30T01:00:00Z", dst: -10, day: 30, hour: 1 },
-    { datetime: "2026-03-30T02:00:00Z", dst: -5,  day: 30, hour: 2 },
-    { datetime: "2026-03-30T03:00:00Z", dst: -15, day: 30, hour: 3 },
-    { datetime: "2026-03-30T04:00:00Z", dst: -50, day: 30, hour: 4 },
-    { datetime: "2026-03-30T05:00:00Z", dst: -80, day: 30, hour: 5 },
-    { datetime: "2026-03-30T06:00:00Z", dst: -120, day: 30, hour: 6 },
-  ];
-  // const result = analyzeStorm(dstData);
-  const result = analyzeStorm(dummyDstData)
+  // const dummyDstData: DSTData[] = [
+  //   { time: "2026-03-30T00:00:00Z", dst: -20},
+  //   { time: "2026-03-30T01:00:00Z", dst: -10},
+  //   { time: "2026-03-30T02:00:00Z", dst: -5},
+  //   { time: "2026-03-30T03:00:00Z", dst: -15},
+  //   { time: "2026-03-30T04:00:00Z", dst: -50},
+  //   { time: "2026-03-30T05:00:00Z", dst: -80},
+  //   { time: "2026-03-30T06:00:00Z", dst: -120},
+  // ];
+  const result = analyzeStorm(dstData);
+  // const result = analyzeStorm(dummyDstData)
   const lastDstData = dstData.at(-1);
   const lastSwData = swData.at(-1);
   const lastBzData = bzData.at(-1);
@@ -364,7 +383,29 @@ export default function Dashboard() {
           <div className="flex justify-between">
             <p>Date</p>
             <div>
-              {/* <p>{dstData.at(-1)?.dateti}</p> */}
+              {lastDstData?.time
+                  ? lastDstData!.time.toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "long",
+                      timeZone: "Asia/Jakarta",
+                    })
+                  : "-"}
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <p>Time</p>
+            <div>
+              <p>
+                {lastDstData?.time
+                  ? lastDstData!.time.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                      timeZone: "Asia/Jakarta",
+                    })
+                  : "-"
+                }
+              </p>
             </div>
           </div>
         </Card>
@@ -381,6 +422,7 @@ export default function Dashboard() {
                   ? lastSwData!.time.toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "long",
+                      timeZone: "Asia/Jakarta",
                     })
                   : "-"}
               </p>
@@ -395,9 +437,10 @@ export default function Dashboard() {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
+                      timeZone: "Asia/Jakarta",
                     })
                   : "-"
-                }                
+                }
               </p>
             </div>
           </div>
@@ -421,6 +464,7 @@ export default function Dashboard() {
                   ? lastBzData!.time.toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "long",
+                    timeZone: "Asia/Jakarta",
                   })
                   : "-"
                 }
@@ -437,6 +481,7 @@ export default function Dashboard() {
                           hour: "2-digit",
                           minute: "2-digit",
                           hour12: false,
+                          timeZone: "Asia/Jakarta",
                       })
                     : "-"
                   }
@@ -462,12 +507,12 @@ export default function Dashboard() {
             <div className="space-y-2 text-sm">
               <p>
                 <span className="font-medium">Onset:</span>{" "}
-                {new Date(result.onset.datetime).toLocaleString()}
+                {new Date(result.onset.time).toLocaleString("en-US", { timeZone: "Asia/Jakarta" })}
               </p>
 
               <p>
                 <span className="font-medium">Trigger (-100):</span>{" "}
-                {new Date(result.trigger.datetime).toLocaleString()}
+                {new Date(result.trigger.time).toLocaleString("en-US", { timeZone: "Asia/Jakarta" })}
               </p>
 
               <p>

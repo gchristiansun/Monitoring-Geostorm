@@ -31,11 +31,39 @@ type BzData = {
   bz?: number | null;
 }
 
+const WIB_TIMEZONE = "Asia/Jakarta";
+
+const getWibStartOfDayUtc = (date: Date): number => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: WIB_TIMEZONE,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  }).formatToParts(date);
+
+  const year = Number(parts.find((part) => part.type === "year")?.value ?? 0);
+  const month = Number(parts.find((part) => part.type === "month")?.value ?? 0);
+  const day = Number(parts.find((part) => part.type === "day")?.value ?? 0);
+
+  return Date.UTC(year, month - 1, day, -7, 0, 0);
+};
+
+const getWibStartTime = (now: Date, daysAgo: number): number => {
+  return getWibStartOfDayUtc(now) - daysAgo * 24 * 60 * 60 * 1000;
+};
+
+const formatWibDateTime = (value: string) =>
+  new Date(value).toLocaleString("en-US", { timeZone: WIB_TIMEZONE });
+
 const columnsDst: ColumnDef<DSTData>[] = [
   {
     accessorKey: "datetime",
     header: "Time",
-    cell: ({ getValue }) => new Date(getValue() as string).toLocaleString(),
+    cell: ({ getValue }) => formatWibDateTime(getValue() as string),
   }, 
   {
     accessorKey: "day",
@@ -58,7 +86,7 @@ const columnsSWS: ColumnDef<SolarWindData>[] = [
   {
     accessorKey: "time",
     header: "Time",
-    cell: ({ getValue }) => new Date(getValue() as string).toLocaleString(),
+    cell: ({ getValue }) => formatWibDateTime(getValue() as string),
   },
   {
     accessorKey: "density",
@@ -84,7 +112,7 @@ const columnsIMF: ColumnDef<BzData>[] = [
   {
     accessorKey: "time",
     header: "Time",
-    cell: ({ getValue }) => new Date(getValue() as string).toLocaleString(),
+    cell: ({ getValue }) => formatWibDateTime(getValue() as string),
   }, 
   {
     accessorKey: "bx",
@@ -181,37 +209,14 @@ export default function Dataset() {
     period: string
   ): DSTData[] => {
     const now = new Date();
+    const nowTime = now.getTime();
+    const daysAgo = period === "3 Days" ? 2 : period === "7 Days" ? 6 : 0;
+    const startTime = getWibStartTime(now, daysAgo);
 
-    if (period === "Today") {
-      return allData.filter((d) => {
-        const dt = new Date(d.datetime);
-        return dt.toDateString() === now.toDateString();
-      });
-    }
-
-    if (period === "3 Days") {
-      const start = new Date();
-      start.setDate(now.getDate() - 2);
-      start.setHours(0, 0, 0, 0);
-
-      return allData.filter((d) => {
-        const dt = new Date(d.datetime);
-        return dt >= start && dt <= now;
-      });
-    }
-
-    if (period === "7 Days") {
-      const start = new Date();
-      start.setDate(now.getDate() - 6);
-      start.setHours(0, 0, 0, 0);
-
-      return allData.filter((d) => {
-        const dt = new Date(d.datetime);
-        return dt >= start && dt <= now;
-      });
-    }
-
-    return allData;
+    return allData.filter((d) => {
+      const t = new Date(d.datetime).getTime();
+      return t >= startTime && t <= nowTime;
+    });
   };
 
   const getFilteredSWData = (
@@ -219,37 +224,14 @@ export default function Dataset() {
     period: string
   ): SolarWindData[] => {
     const now = new Date();
+    const nowTime = now.getTime();
+    const daysAgo = period === "3 Days" ? 2 : period === "7 Days" ? 6 : 0;
+    const startTime = getWibStartTime(now, daysAgo);
 
-    if (period === "Today") {
-      return allData.filter((d) => {
-        const dt = new Date(d.time);
-        return dt.toDateString() === now.toDateString();
-      });
-    }
-
-    if (period === "3 Days") {
-      const start = new Date();
-      start.setDate(now.getDate() - 2);
-      start.setHours(0, 0, 0, 0);
-
-      return allData.filter((d) => {
-        const dt = new Date(d.time);
-        return dt >= start && dt <= now;
-      });
-    }
-
-    if (period === "7 Days") {
-      const start = new Date();
-      start.setDate(now.getDate() - 6);
-      start.setHours(0, 0, 0, 0);
-
-      return allData.filter((d) => {
-        const dt = new Date(d.time);
-        return dt >= start && dt <= now;
-      });
-    }
-
-    return allData;
+    return allData.filter((d) => {
+      const t = new Date(d.time).getTime();
+      return t >= startTime && t <= nowTime;
+    });
   };
 
   const getFilteredBzData = (
@@ -257,86 +239,15 @@ export default function Dataset() {
     period: string
   ): BzData[] => {
     const now = new Date();
+    const nowTime = now.getTime();
+    const daysAgo = period === "3 Days" ? 2 : period === "7 Days" ? 6 : 0;
+    const startTime = getWibStartTime(now, daysAgo);
 
-    if (period === "Today") {
-      return allData.filter((d) => {
-        const dt = new Date(d.time);
-        return dt.toDateString() === now.toDateString();
-      });
-    }
-
-    if (period === "3 Days") {
-      const start = new Date();
-      start.setDate(now.getDate() - 2);
-      start.setHours(0, 0, 0, 0);
-
-      return allData.filter((d) => {
-        const dt = new Date(d.time);
-        return dt >= start && dt <= now;
-      });
-    }
-
-    if (period === "7 Days") {
-      const start = new Date();
-      start.setDate(now.getDate() - 6);
-      start.setHours(0, 0, 0, 0);
-
-      return allData.filter((d) => {
-        const dt = new Date(d.time);
-        return dt >= start && dt <= now;
-      });
-    }
-
-    return allData;
+    return allData.filter((d) => {
+      const t = new Date(d.time).getTime();
+      return t >= startTime && t <= nowTime;
+    });
   };
-
-  // const filteredDstData = useMemo(() => {
-  //   const result = getFilteredDstData(dstdata, selectedPeriod);
-  //   if (selectedPeriod === "Today" && result.length === 0) {
-  //     return [
-  //       {
-  //         datetime: new Date().toISOString(),
-  //         day: null,
-  //         hour: null,
-  //         dst: null,
-  //       },
-  //     ];
-  //   }
-
-  //   return result;
-  // }, [dstdata, selectedPeriod]);
-
-  // const filteredSWSData = useMemo(() => {
-  //   const result = getFilteredSWData(swsdata, selectedPeriod);
-  //   if (selectedPeriod === "Today" && result.length === 0) {
-  //     return [
-  //       {
-  //         time: new Date().toISOString(),
-  //         density: null,
-  //         speed: null,
-  //         temperature: null,
-  //       },
-  //     ];
-  //   }
-
-  //   return result;
-  // }, [swsdata, selectedPeriod]);
-
-  // const filteredIMFData = useMemo(() => {
-  //   const result = getFilteredBzData(bzdata, selectedPeriod);
-  //   if (selectedPeriod === "Today" && result.length === 0) {
-  //     return [
-  //       {
-  //         time: new Date().toISOString(),
-  //         bx: null,
-  //         by: null,
-  //         bz: null,
-  //       },
-  //     ];
-  //   }
-
-  //   return result;
-  // }, [bzdata, selectedPeriod]);
 
   const filteredDstData = getFilteredDstData(dstdata, selected)
   const filteredSWSData = getFilteredSWData(swsdata, selected)

@@ -17,8 +17,28 @@ type SWData = {
 
 type ChartData = SWData & {
     index: number;
+    day: number; //
     timeString: string;
 };
+
+const WIB_TIMEZONE = "Asia/Jakarta";
+
+const wibDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: WIB_TIMEZONE,
+  day: "2-digit",
+});
+
+const wibHourFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: WIB_TIMEZONE,
+  hour: "2-digit",
+  hour12: false,
+});
+
+const getWibDay = (date: Date) => Number(wibDayFormatter.format(date));
+const getWibHour = (date: Date) => Number(wibHourFormatter.format(date));
+
+const formatWibDate = (date: Date) => date.toLocaleDateString("en-US", { timeZone: WIB_TIMEZONE });
+const formatWibTime = (date: Date) => date.toLocaleTimeString("en-US", { timeZone: WIB_TIMEZONE, hour: "2-digit", minute: "2-digit", hour12: false });
 
 type Props = {
     data: SWData[];
@@ -30,21 +50,21 @@ function SWSChart({ data, period = "7 Days" }: Props) {
     .filter(d => d.speed !== null)
     .map((d, index) => ({
       index,
-      day: d.time.getDate(),
-      timeString: d.time.toLocaleString(),
+      day: getWibDay(d.time),
+      timeString: d.time.toLocaleString("en-US", { timeZone: WIB_TIMEZONE }),
       time: d.time,
       speed: d.speed
     }));
 
   const dayTicks = chartData
-    .map((d, i) => ({ day: d.time.getDate(), index: i }))
+    .map((d, i) => ({ day: d.time ? getWibDay(d.time) : 0, index: i }))
     .filter((item, i, arr) => {
       return i === 0 || item.day !== arr[i - 1].day;
     })
     .map((item) => item.index);
 
   const hourTicks = chartData
-    .map((d, i) => ({ hour: d.time.getHours(), index: i }))
+    .map((d, i) => ({ hour: d.time ? getWibHour(d.time) : 0, index: i }))
     .filter((item, i, arr) => {
       const isNewHour = i === 0 || item.hour !== arr[i - 1].hour;
       const isInterval = item.hour % 2 === 0;
@@ -59,11 +79,8 @@ function SWSChart({ data, period = "7 Days" }: Props) {
     const d = chartData[payload.value];
     if (!d) return null;
 
-    const date = d.time.toLocaleDateString();
-    const time = d.time.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const date = formatWibDate(d.time);
+    const time = formatWibTime(d.time);
 
     if (period === "Today") {      
       return (
@@ -95,7 +112,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
           padding={{ left: 50, right: 50 }}
         >
           <Label
-            value="Time"
+            value="Time (WIB)"
             offset={-40}
             position="insideBottom"
           />
@@ -121,7 +138,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
             }
             const index = Number(label);
             const d = chartData[index];
-            return d ? d.time.toLocaleString() : "";
+            return d ? d.time.toLocaleString("en-US", { timeZone: WIB_TIMEZONE }) : "";
           }}
         />
 

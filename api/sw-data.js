@@ -17,7 +17,7 @@ async function fetchSolarWindSpeed() {
       };
 
       return {
-        time: new Date(row[0]),
+        time: new Date(row[0] + "Z"),
         density: parse(row[1]),
         speed: parse(row[2]),
         temperature: parse(row[3]),
