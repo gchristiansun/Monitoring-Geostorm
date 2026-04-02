@@ -385,7 +385,7 @@ export default function Dashboard() {
           </div>
           <div className="flex justify-between">
             <p>Time</p>
-            <div>
+            <div className="flex gap-2">
               <p>
                 {lastDstData?.time
                   ? lastDstData!.time.toLocaleTimeString("en-US", {
@@ -396,6 +396,9 @@ export default function Dashboard() {
                     })
                   : "-"
                 }
+              </p>
+              <p className="font-semibold">
+                WIB
               </p>
             </div>
           </div>
@@ -428,7 +431,7 @@ export default function Dashboard() {
           </div>
           <div className="flex justify-between">
             <p>Time</p>
-            <div>
+            <div className="flex gap-2">
               <p>
                 {lastSwData?.time
                   ? lastSwData!.time.toLocaleTimeString("en-US", {
@@ -440,6 +443,7 @@ export default function Dashboard() {
                   : "-"
                 }
               </p>
+              <p className="font-semibold">WIB</p>                        
             </div>
           </div>
           <div className="flex justify-between">
@@ -472,7 +476,7 @@ export default function Dashboard() {
           </div>
           <div className="flex justify-between">
               <p>Time:</p>
-              <div>
+              <div className="flex gap-2">
                 <p>
                   {
                     lastBzData?.time
@@ -484,6 +488,9 @@ export default function Dashboard() {
                       })
                     : "-"
                   }
+                </p>
+                <p className="font-semibold">
+                  WIB
                 </p>
               </div>
           </div>
