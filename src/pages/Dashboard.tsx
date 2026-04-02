@@ -6,6 +6,7 @@ import DSTChart from "../components/DSTChart";
 import SWSChart from "../components/SWSChart";
 import BzChart from "../components/BzChart";
 import LoadingSpinner from "../components/LoadingSpinner";
+import StatusCircle from "../components/StatusCircle";
 
 type APIDSTData = {
   datetime: string;
@@ -144,9 +145,6 @@ export default function Dashboard() {
         const interval = setInterval(fetchBzData, 300000); 
         return () => clearInterval(interval);
     }, []);
-
-  //   const formatDate = (date: Date) =>
-  // date.toISOString().split("T")[0];
 
     const analyzeStorm = (data: DSTData[]) => {
       // pastikan urut waktu
@@ -343,7 +341,7 @@ export default function Dashboard() {
   const filteredSWSData = getFilteredSWData(swData, selected);
   const filteredBzData = getFilteredBzData(bzData, selected);
 
-  const status = getLatestDSTStatus(dstData);
+  const dstStatus = getLatestDSTStatus(dstData);
   const swStatus = getLatestSWStatus(swData);
   const bzStatus = getLatestBzStatus(bzData);
   // const dummyDstData: DSTData[] = [
@@ -355,8 +353,7 @@ export default function Dashboard() {
   //   { time: "2026-03-30T05:00:00Z", dst: -80},
   //   { time: "2026-03-30T06:00:00Z", dst: -120},
   // ];
-  const result = analyzeStorm(dstData);
-  // const result = analyzeStorm(dummyDstData)
+  const result = analyzeStorm(dstData);  
   const lastDstData = dstData.at(-1);
   const lastSwData = swData.at(-1);
   const lastBzData = bzData.at(-1);
@@ -373,13 +370,7 @@ export default function Dashboard() {
           <div className="flex justify-between">
             Dst Index:
             <p className="font-bold">{lastDstData?.dst ?? "-"} nT</p>
-          </div>
-          <div className="flex justify-between">
-            <p>Status:</p>
-            <div>
-              <p>{status}</p>
-            </div>
-          </div>
+          </div>          
           <div className="flex justify-between">
             <p>Date</p>
             <div>
@@ -406,6 +397,13 @@ export default function Dashboard() {
                   : "-"
                 }
               </p>
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <p>Status:</p>
+            <div className="flex items-center gap-2">
+              <p>{dstStatus}</p>
+              <StatusCircle status={dstStatus} />
             </div>
           </div>
         </Card>
@@ -446,8 +444,9 @@ export default function Dashboard() {
           </div>
           <div className="flex justify-between">
             <p>Status:</p>
-            <div>
+            <div className="flex items-center gap-2">
               <p>{swStatus}</p>
+              <StatusCircle status={swStatus} />
             </div>
           </div>
         </Card>
@@ -490,8 +489,9 @@ export default function Dashboard() {
           </div>
           <div className="flex justify-between">
             <p>Status:</p>  
-            <div>
+            <div className="flex items-center gap-2">
               <p>{bzStatus}</p>
+              <StatusCircle status={bzStatus} />
             </div>
           </div> 
         </Card>        
