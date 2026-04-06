@@ -86,7 +86,7 @@ export default function DataTable<T>({
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+          className="px-3 py-1 bg-[#833AB4] text-white rounded disabled:opacity-50"
         >
           Previous
         </button>
@@ -99,7 +99,7 @@ export default function DataTable<T>({
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+          className="px-3 py-1 bg-[#833AB4] text-white rounded disabled:opacity-50"
         >
           Next
         </button>

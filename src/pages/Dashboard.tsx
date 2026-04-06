@@ -7,6 +7,8 @@ import SWSChart from "../components/SWSChart";
 import BzChart from "../components/BzChart";
 import LoadingSpinner from "../components/LoadingSpinner";
 import StatusCircle from "../components/StatusCircle";
+import  { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import React from "react";
 
 type APIDSTData = {
   datetime: string;
@@ -72,6 +74,7 @@ export default function Dashboard() {
     const [dstLoading, setDstLoading] = useState(true);
     const [swLoading, setSwLoading] = useState(true);
     const [bzLoading, setBzLoading] = useState(true);
+    const [storm, setStorm] = useState<any>(null);
     const [selected, setSelected] = useState<string>(() => {
         const saved = localStorage.getItem("dropdown-selected");
         return saved || "Today";
@@ -147,23 +150,20 @@ export default function Dashboard() {
     }, []);
 
     const analyzeStorm = (data: DSTData[]) => {
-      // pastikan urut waktu
       const sorted = [...data].sort(
         (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
       );
 
       for (let i = 0; i < sorted.length; i++) {
         if (sorted[i].dst <= -100) {
-          // cari onset (peak sebelum drop)
-          let maxDst = sorted[i].dst;
-          let onsetIndex = i;
+          // 🔥 cari onset (lebih akurat tanpa break)
+          let maxDst = -Infinity;
+          let onsetIndex = 0;
 
-          for (let j = i - 1; j >= 0; j--) {
+          for (let j = 0; j < i; j++) {
             if (sorted[j].dst > maxDst) {
               maxDst = sorted[j].dst;
               onsetIndex = j;
-            } else {
-              break;
             }
           }
 
@@ -172,52 +172,36 @@ export default function Dashboard() {
 
           const onsetTime = new Date(onset.time).getTime();
           const triggerTime = new Date(trigger.time).getTime();
+          const now = Date.now();
 
-          const diffHours = (triggerTime - onsetTime) / (1000 * 60 * 60);
+          // ⏱️ durasi onset → trigger
+          const durationHours =
+            (triggerTime - onsetTime) / (1000 * 60 * 60);
 
-          const remaining = 10 - diffHours;
+          // ⏳ sisa awal
+          const initialRemaining = 10 - durationHours;
+
+          // ⏳ waktu sejak trigger
+          const elapsedSinceTrigger =
+            (now - triggerTime) / (1000 * 60 * 60);
+
+          // 🔥 remaining real-time
+          const remainingHours = Math.max(
+            0,
+            initialRemaining - elapsedSinceTrigger
+          );
 
           return {
             onset,
             trigger,
-            durationHours: diffHours,
-            remainingHours: remaining,
+            durationHours,
+            remainingHours,
           };
         }
       }
 
       return null;
     };
-
-    // const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
-    //     const now = new Date();
-
-    //     if (period === "Today") {
-    //     return allData.filter(d => {
-    //         const dt = new Date(d.time);
-    //         return dt.toDateString() === now.toDateString();
-    //     });
-    //     } else if (period === "7 Days") {
-    //     const sevenDaysAgo = new Date();
-    //     sevenDaysAgo.setDate(now.getDate() - 6); 
-    //     sevenDaysAgo.setHours(0, 0, 0, 0);
-
-    //     return allData.filter(d => {
-    //         const dt = new Date(d.time);
-    //         return dt >= sevenDaysAgo && dt <= now;
-    //     });
-    //     } else if (period === "3 Days") {
-    //     const threeDaysAgo =  new Date();
-    //     threeDaysAgo.setDate(now.getDate() - 2);
-    //     threeDaysAgo.setHours(0, 0, 0, 0);
-
-    //     return allData.filter(d => {
-    //         const dt = new Date(d.time);
-    //         return dt >= threeDaysAgo && dt <= now
-    //     })
-    //     }
-    //     return allData;
-    // };
 
     const getWibStartOfDayUtc = (date: Date): number => {
       const parts = new Intl.DateTimeFormat("en-US", {
@@ -344,19 +328,43 @@ export default function Dashboard() {
   const dstStatus = getLatestDSTStatus(dstData);
   const swStatus = getLatestSWStatus(swData);
   const bzStatus = getLatestBzStatus(bzData);
-  // const dummyDstData: DSTData[] = [
-  //   { time: "2026-03-30T00:00:00Z", dst: -20},
-  //   { time: "2026-03-30T01:00:00Z", dst: -10},
-  //   { time: "2026-03-30T02:00:00Z", dst: -5},
-  //   { time: "2026-03-30T03:00:00Z", dst: -15},
-  //   { time: "2026-03-30T04:00:00Z", dst: -50},
-  //   { time: "2026-03-30T05:00:00Z", dst: -80},
-  //   { time: "2026-03-30T06:00:00Z", dst: -120},
-  // ];
-  const result = analyzeStorm(dstData);  
+
+  const dummyDstData = React.useMemo(() => {
+    const now = new Date();
+
+    const year = now.getUTCFullYear();
+    const month = now.getUTCMonth();
+    const day = now.getUTCDate();
+    const hour = now.getUTCHours();
+
+    return [
+      { time: new Date(Date.UTC(year, month, day, hour - 9)), dst: -5 },  
+      { time: new Date(Date.UTC(year, month, day, hour - 8)), dst: -20 },
+      { time: new Date(Date.UTC(year, month, day, hour - 7)), dst: -30 },
+      { time: new Date(Date.UTC(year, month, day, hour - 6)), dst: -40 },
+      { time: new Date(Date.UTC(year, month, day, hour - 5)), dst: -50 },
+      { time: new Date(Date.UTC(year, month, day, hour - 4)), dst: -60 },
+      { time: new Date(Date.UTC(year, month, day, hour - 3)), dst: -70 },
+      { time: new Date(Date.UTC(year, month, day, hour - 2)), dst: -80 },
+      { time: new Date(Date.UTC(year, month, day, hour - 1)), dst: -90 },
+      { time: new Date(Date.UTC(year, month, day, hour)), dst: -110 }, 
+    ];
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const result = analyzeStorm(dstData);
+      setStorm(result);
+    }, 1000); 
+
+    return () => clearInterval(interval);
+  }, []);
   const lastDstData = dstData.at(-1);
   const lastSwData = swData.at(-1);
   const lastBzData = bzData.at(-1);
+
+  const isStormActive = storm && storm?.remainingHours > 0;
+  const remaining = storm?.remainingHours ?? 0;
 
   return (
     <Layout>
@@ -504,35 +512,37 @@ export default function Dashboard() {
         </Card>        
       </div>
 
-      <div className="flex flex-col gap-3">
-        <Card>
-          <h2 className="font-semibold text-lg mb-2">Storm Analysis</h2>
-
-          {!result ? (
-            <p className="text-sm text-gray-500">No storm detected</p>
-          ) : (
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium">Onset:</span>{" "}
-                {new Date(result.onset.time).toLocaleString("en-US", { timeZone: "Asia/Jakarta" })}
-              </p>
-
-              <p>
-                <span className="font-medium">Trigger (-100):</span>{" "}
-                {new Date(result.trigger.time).toLocaleString("en-US", { timeZone: "Asia/Jakarta" })}
-              </p>
-
-              <p>
-                <span className="font-medium">Duration:</span>{" "}
-                {result.durationHours.toFixed(2)} hours
-              </p>
-
-              <p>
-                <span className="font-medium">Remaining:</span>{" "}
-                {Math.max(0, result.remainingHours).toFixed(2)} hours
-              </p>
-            </div>
+      <div className="flex flex-col gap-3">            
+               
+        <Card
+          className={`relative overflow-hidden p-4 rounded-xl shadow-md transition-all duration-300 ${
+            !isStormActive? "!bg-gray-50" : "!bg-red-500"
+          }`}
+        >          
+          {isStormActive && (
+            <div className="absolute inset-0 bg-gradient-to-br from-red-400 via-red-600 to-red-800 opacity-20" />
           )}
+          
+          {isStormActive && (
+            <div className="absolute inset-0 animate-pulse bg-red-800 opacity-10 z-0" />
+          )}          
+          <div className="relative z-10">
+            {!storm ? (
+              <p className="text-sm text-gray-500">No storm detected</p>
+            ) : (
+              <div className="space-y-2 text-sm text-white flex items-center justify-between">
+                <p>
+                  A MUF depression is expected to occur within the next{" "}
+                  <span className="font-bold">
+                    {remaining >= 1
+                      ? `${Math.floor(remaining)} hours`
+                      : `${Math.floor(remaining * 60)} minutes`}
+                  </span>
+                </p>
+                <ExclamationTriangleIcon className="w-7 h-7 text-white" />
+              </div>
+            )}
+          </div>
         </Card>
         <Card>
           <h2 className="font-semibold">Dst</h2>
@@ -542,7 +552,7 @@ export default function Dashboard() {
           ) : filteredData.length === 0 ? (
             <div className="text-center m-10">No data available</div>
           ) : (
-            <DSTChart data={filteredData} period={selected} />
+            <DSTChart data={dstData} period={selected} />
           )}
         </Card>
         <Card>

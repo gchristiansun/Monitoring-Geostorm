@@ -264,7 +264,7 @@ export default function Dataset() {
         <Card>
           <div className="flex justify-between items-center">
             <h2 className="font-semibold">Dst</h2>
-            <Button className="bg-red-500 hover:bg-red-500" onClick={() => ConvertToCSV(filteredDstData, "dst", selected)}>
+            <Button className="!bg-[#833AB4] hover:!bg-[#833AB4]" onClick={() => ConvertToCSV(filteredDstData, "dst", selected)}>
               <ArrowDownTrayIcon className="w-4 h-4" />
             </Button>
           </div>
@@ -284,7 +284,7 @@ export default function Dataset() {
         <Card>
           <div className="flex justify-between items-center">
             <h2 className="font-semibold">Solar Wind</h2>
-            <Button className="bg-red-500 hover:bg-red-500" onClick={() => ConvertToCSV(filteredSWSData, "solarwind", selected)}>
+            <Button className="!bg-[#833AB4] hover:!bg-[#833AB4]" onClick={() => ConvertToCSV(filteredSWSData, "solarwind", selected)}>
               <ArrowDownTrayIcon className="w-4 h-4" />            
             </Button>
           </div>
@@ -304,7 +304,7 @@ export default function Dataset() {
         <Card>
           <div className="flex justify-between items-center">
             <h2 className="font-semibold">IMF</h2>
-            <Button className="bg-red-500 hover:bg-red-500" onClick={() => ConvertToCSV(filteredIMFData, "imf", selected)}>
+            <Button className="!bg-[#833AB4] hover:!bg-[#833AB4]" onClick={() => ConvertToCSV(filteredIMFData, "imf", selected)}>
               <ArrowDownTrayIcon className="w-4 h-4" />
             </Button>
           </div>

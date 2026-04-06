@@ -27,7 +27,7 @@ export default function Dropdown({ onSelect }: DropdownProps) {
     <div className="relative inline-block text-left">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-xl bg-red-500 hover:bg-red-600 gap-2 flex items-center"
+        className="rounded-xl !bg-[#833AB4] hover:!bg-[#833AB4] gap-2 flex items-center"
       >
         {selected}
         <ChevronDownIcon

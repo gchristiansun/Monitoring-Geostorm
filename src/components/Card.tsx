@@ -19,7 +19,7 @@ const variants: Record<CardVariant, string> = {
 
 const Card = ({ children, className, variant = 'light' }: CardProps) => {
 	return (
-		<div className={cn(base, variants[variant], className)}>
+		<div className={cn(base, className, variants[variant])}>
 			{children}
 		</div>
 	)

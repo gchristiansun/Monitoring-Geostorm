@@ -100,7 +100,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
 
   return (
     <ResponsiveContainer width="100%" height={400} className='focus:b-0 onClick:b-0'>
-      <LineChart data={chartData} margin={{ top: 20, right: 20, bottom: 30, left: 10 }}>
+      <LineChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: 10 }}>
         <CartesianGrid strokeDasharray="3 3" />
 
         <XAxis
@@ -108,12 +108,12 @@ function SWSChart({ data, period = "7 Days" }: Props) {
           ticks={activeTicks}     
           tick={<CustomTick />}        
           textAnchor="middle"
-          height={80}
-          padding={{ left: 50, right: 50 }}
+          height={90}
+          padding={{ left: 30, right: 30 }}
         >
           <Label
             value="Time (WIB)"
-            offset={-40}
+            offset={30}
             position="insideBottom"
           />
         </XAxis>
