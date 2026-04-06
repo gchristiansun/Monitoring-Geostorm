@@ -353,7 +353,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const result = analyzeStorm(dstData);
+      const result = analyzeStorm(dummyDstData);
       setStorm(result);
     }, 1000); 
 
