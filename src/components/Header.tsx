@@ -31,7 +31,7 @@ const AdminHeader = ({ className, onMenuClick }: AdminHeaderProps) => {
 				{/* Brand */}
 				<div className="flex items-center gap-2">
 					<img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/line-chart--v1.png" alt="line-chart--v1" />
-					<span className={cn('text-lg font-semibold text-black')}>Monitoring Geostorm</span>
+					<span className={cn('text-lg font-semibold text-black')}>MagnoGuard</span>
 				</div>
 				{/* Notification icon */}
 				<div className="flex items-center gap-2">

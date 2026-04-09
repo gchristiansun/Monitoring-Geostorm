@@ -7,7 +7,8 @@ import {
     Tooltip,
     ResponsiveContainer,
     Label,
-    Brush
+    Brush,
+    ReferenceLine
 } from "recharts";
 
 type BzData = {
@@ -21,23 +22,23 @@ type ChartData = BzData & {
     timeString: string;
 };
 
-const WIB_TIMEZONE = "Asia/Jakarta";
+const UTC_TIMEZONE = "UTC";
 
-const wibDayFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: WIB_TIMEZONE,
+const utcDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: UTC_TIMEZONE,
   day: "2-digit",
 });
 
-const wibHourFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: WIB_TIMEZONE,
+const utcHourFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: UTC_TIMEZONE,
   hour: "2-digit",
   hour12: false,
 });
 
-const getWibDay = (date: Date) => Number(wibDayFormatter.format(date));
-const getWibHour = (date: Date) => Number(wibHourFormatter.format(date));
-const formatWibDate = (date: Date) => date.toLocaleDateString("en-US", { timeZone: WIB_TIMEZONE });
-const formatWibTime = (date: Date) => date.toLocaleTimeString("en-US", { timeZone: WIB_TIMEZONE, hour: "2-digit", minute: "2-digit", hour12: false });
+const getUtcDay = (date: Date) => Number(utcDayFormatter.format(date));
+const getUtcHour = (date: Date) => Number(utcHourFormatter.format(date));
+const formatUtcDate = (date: Date) => date.toLocaleDateString("en-US", { timeZone: UTC_TIMEZONE });
+const formatUtcTime = (date: Date) => date.toLocaleTimeString("en-US", { timeZone: UTC_TIMEZONE, hour: "2-digit", minute: "2-digit", hour12: false });
 
 type Props = {
     data: BzData[];
@@ -49,21 +50,21 @@ function BzChart({ data, period = "7 Days" }: Props) {
     .filter(d => d.bz !== null)
     .map((d, index) => ({
       index,
-      day: getWibDay(d.time),
-      timeString: d.time.toLocaleString("en-US", { timeZone: WIB_TIMEZONE }),
+      day: getUtcDay(d.time),
+      timeString: d.time.toLocaleString("en-US", { timeZone: UTC_TIMEZONE }),
       time: d.time,
       bz: d.bz
     }));
 
   const dayTicks = chartData
-    .map((d, i) => ({ day: getWibDay(d.time), index: i}))
+    .map((d, i) => ({ day: getUtcDay(d.time), index: i}))
     .filter((item, i , arr) => {
       return i === 0 || item.day !== arr[i - 1].day;
     })
     .map((item) => item.index)
 
   const hourTicks = chartData
-    .map((d, i) => ({ hour: getWibHour(d.time), index: i}))
+    .map((d, i) => ({ hour: getUtcHour(d.time), index: i}))
     .filter((item, i, arr) => {
       const isNewhour = i === 0 || item.hour !== arr[i - 1].hour;
       const isInterval = item.hour % 2 === 0;
@@ -78,8 +79,8 @@ function BzChart({ data, period = "7 Days" }: Props) {
     const d = chartData[payload.value];
     if (!d) return null;
 
-    const date = formatWibDate(d.time);
-    const time = formatWibTime(d.time);
+    const date = formatUtcDate(d.time);
+    const time = formatUtcTime(d.time);
 
     if (period === "Today") {
       return (
@@ -111,7 +112,7 @@ function BzChart({ data, period = "7 Days" }: Props) {
           padding={{ left: 30, right: 30 }}          
         >
           <Label
-            value="Time (WIB)"
+            value="Time (UTC)"
             offset={30}
             position="insideBottom"
           />
@@ -119,7 +120,7 @@ function BzChart({ data, period = "7 Days" }: Props) {
 
         <YAxis
           tick={{ fontSize: 12, fill: '#333', fontWeight: 'bold' }}
-          domain={[-100, 100]}
+          domain={[-50, 50]}
         >
           <Label value="nT" offset={0} position="insideLeft"></Label>
         </YAxis>
@@ -137,7 +138,7 @@ function BzChart({ data, period = "7 Days" }: Props) {
             }
             const index = Number(label);
             const d = chartData[index];
-            return d ? d.time.toLocaleString("en-US", { timeZone: WIB_TIMEZONE }) : "";
+            return d ? d.time.toLocaleString("en-US", { timeZone: UTC_TIMEZONE }) : "";
           }}
         />
 
@@ -154,7 +155,9 @@ function BzChart({ data, period = "7 Days" }: Props) {
           height={15}
           stroke="#ff0000"
           travellerWidth={8}
-        />
+        />        
+
+        <ReferenceLine x={chartData[chartData.length - 1]?.index} stroke="#ff0000" strokeDasharray="3 3" />
       </LineChart>
     </ResponsiveContainer>
   );

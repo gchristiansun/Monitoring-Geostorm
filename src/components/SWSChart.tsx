@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
     LineChart,
     Line,
@@ -7,7 +8,8 @@ import {
     Tooltip,
     ResponsiveContainer,
     Label,
-    Brush
+    Brush,
+    ReferenceLine
 } from "recharts";
 
 type SWData = {
@@ -21,24 +23,24 @@ type ChartData = SWData & {
     timeString: string;
 };
 
-const WIB_TIMEZONE = "Asia/Jakarta";
+const UTC_TIMEZONE = "UTC";
 
-const wibDayFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: WIB_TIMEZONE,
+const utcDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: UTC_TIMEZONE,
   day: "2-digit",
 });
 
-const wibHourFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: WIB_TIMEZONE,
+const utcHourFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: UTC_TIMEZONE,
   hour: "2-digit",
   hour12: false,
 });
 
-const getWibDay = (date: Date) => Number(wibDayFormatter.format(date));
-const getWibHour = (date: Date) => Number(wibHourFormatter.format(date));
+const getUtcDay = (date: Date) => Number(utcDayFormatter.format(date));
+const getUtcHour = (date: Date) => Number(utcHourFormatter.format(date));
 
-const formatWibDate = (date: Date) => date.toLocaleDateString("en-US", { timeZone: WIB_TIMEZONE });
-const formatWibTime = (date: Date) => date.toLocaleTimeString("en-US", { timeZone: WIB_TIMEZONE, hour: "2-digit", minute: "2-digit", hour12: false });
+const formatUtcDate = (date: Date) => date.toLocaleDateString("en-US", { timeZone: UTC_TIMEZONE });
+const formatUtcTime = (date: Date) => date.toLocaleTimeString("en-US", { timeZone: UTC_TIMEZONE, hour: "2-digit", minute: "2-digit", hour12: false });
 
 type Props = {
     data: SWData[];
@@ -46,41 +48,47 @@ type Props = {
 };
 
 function SWSChart({ data, period = "7 Days" }: Props) {
-  const chartData: ChartData[] = data
-    .filter(d => d.speed !== null)
-    .map((d, index) => ({
-      index,
-      day: getWibDay(d.time),
-      timeString: d.time.toLocaleString("en-US", { timeZone: WIB_TIMEZONE }),
-      time: d.time,
-      speed: d.speed
-    }));
+  const chartData: ChartData[] = useMemo(() => {
+    return data
+      .filter((d) => d.speed !== null)
+      .map((d, index) => ({
+        index,
+        day: getUtcDay(d.time),
+        timeString: d.time.toLocaleString("en-US", { timeZone: UTC_TIMEZONE }),
+        time: d.time,
+        speed: d.speed,
+      }));
+  }, [data]);
 
-  const dayTicks = chartData
-    .map((d, i) => ({ day: d.time ? getWibDay(d.time) : 0, index: i }))
-    .filter((item, i, arr) => {
-      return i === 0 || item.day !== arr[i - 1].day;
-    })
-    .map((item) => item.index);
+  const dayTicks = useMemo(() => {
+    return chartData
+      .map((d, i) => ({ day: d.time ? getUtcDay(d.time) : 0, index: i }))
+      .filter((item, i, arr) => i === 0 || item.day !== arr[i - 1].day)
+      .map((item) => item.index);
+  }, [chartData]);
 
-  const hourTicks = chartData
-    .map((d, i) => ({ hour: d.time ? getWibHour(d.time) : 0, index: i }))
-    .filter((item, i, arr) => {
-      const isNewHour = i === 0 || item.hour !== arr[i - 1].hour;
-      const isInterval = item.hour % 2 === 0;
+  const hourTicks = useMemo(() => {
+    return chartData
+      .map((d, i) => ({ hour: d.time ? getUtcHour(d.time) : 0, index: i }))
+      .filter((item, i, arr) => {
+        const isNewHour = i === 0 || item.hour !== arr[i - 1].hour;
+        const isInterval = item.hour % 2 === 0;
 
-      return isNewHour && isInterval;
-    })
-    .map((item) => item.index);
+        return isNewHour && isInterval;
+      })
+      .map((item) => item.index);
+  }, [chartData]);
 
-  const activeTicks = period === "Today" ? hourTicks : dayTicks;
+  const activeTicks = useMemo(() => {
+    return period === "Today" ? hourTicks : dayTicks;
+  }, [period, dayTicks, hourTicks]);
 
   const CustomTick = ({ x, y, payload }: any) => {
     const d = chartData[payload.value];
     if (!d) return null;
 
-    const date = formatWibDate(d.time);
-    const time = formatWibTime(d.time);
+    const date = formatUtcDate(d.time);
+    const time = formatUtcTime(d.time);
 
     if (period === "Today") {      
       return (
@@ -112,7 +120,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
           padding={{ left: 30, right: 30 }}
         >
           <Label
-            value="Time (WIB)"
+            value="Time (UTC)"
             offset={30}
             position="insideBottom"
           />
@@ -120,7 +128,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
 
         <YAxis
           tick={{ fontSize: 12, fill: '#333', fontWeight: 'bold' }}
-          domain={[0, 800]}
+          domain={[300, 1000]}
         >
           <Label value="Km/s" offset={0} position="insideLeft" angle={-90}></Label>
         </YAxis>
@@ -138,7 +146,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
             }
             const index = Number(label);
             const d = chartData[index];
-            return d ? d.time.toLocaleString("en-US", { timeZone: WIB_TIMEZONE }) : "";
+            return d ? d.time.toLocaleString("en-US", { timeZone: UTC_TIMEZONE }) : "";
           }}
         />
 
@@ -156,6 +164,9 @@ function SWSChart({ data, period = "7 Days" }: Props) {
           stroke="#8a2be2"
           travellerWidth={8}
         />
+
+        <ReferenceLine y={500} stroke="#ff0000" strokeDasharray="3 3" />
+        <ReferenceLine x={chartData[chartData.length - 1]?.index} stroke="#ff0000" strokeDasharray="3 3" />
       </LineChart>      
     </ResponsiveContainer>
   );

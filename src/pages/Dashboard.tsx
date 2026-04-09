@@ -99,7 +99,7 @@ export default function Dashboard() {
         };
 
         fetchData();
-        const interval = setInterval(fetchData, 60000);
+        const interval = setInterval(fetchData, 180000);
         return () => clearInterval(interval);
     }, []);
 
@@ -122,7 +122,7 @@ export default function Dashboard() {
         };
 
         fetchSWData();
-        const interval = setInterval(fetchSWData, 300000); 
+        const interval = setInterval(fetchSWData, 600000); 
         return () => clearInterval(interval);
     }, []);
 
@@ -140,12 +140,12 @@ export default function Dashboard() {
             })
             .catch((err) => {
             console.error(err);
-            setSwLoading(false);
+            setBzLoading(false);
             });
         };
 
         fetchBzData();
-        const interval = setInterval(fetchBzData, 300000); 
+        const interval = setInterval(fetchBzData, 600000); 
         return () => clearInterval(interval);
     }, []);
 
@@ -155,8 +155,7 @@ export default function Dashboard() {
       );
 
       for (let i = 0; i < sorted.length; i++) {
-        if (sorted[i].dst <= -100) {
-          // 🔥 cari onset (lebih akurat tanpa break)
+        if (sorted[i].dst <= -100) {          
           let maxDst = -Infinity;
           let onsetIndex = 0;
 
@@ -173,19 +172,15 @@ export default function Dashboard() {
           const onsetTime = new Date(onset.time).getTime();
           const triggerTime = new Date(trigger.time).getTime();
           const now = Date.now();
-
-          // ⏱️ durasi onset → trigger
+          
           const durationHours =
             (triggerTime - onsetTime) / (1000 * 60 * 60);
-
-          // ⏳ sisa awal
+          
           const initialRemaining = 10 - durationHours;
-
-          // ⏳ waktu sejak trigger
+          
           const elapsedSinceTrigger =
             (now - triggerTime) / (1000 * 60 * 60);
-
-          // 🔥 remaining real-time
+          
           const remainingHours = Math.max(
             0,
             initialRemaining - elapsedSinceTrigger
@@ -203,27 +198,16 @@ export default function Dashboard() {
       return null;
     };
 
-    const getWibStartOfDayUtc = (date: Date): number => {
-      const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: "Asia/Jakarta",
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-        hour12: false,
-      }).formatToParts(date);
+    const getUtcStartOfDay = (date: Date): number => {
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth();
+      const day = date.getUTCDate();
 
-      const year = Number(parts.find((part) => part.type === "year")?.value ?? 0);
-      const month = Number(parts.find((part) => part.type === "month")?.value ?? 0);
-      const day = Number(parts.find((part) => part.type === "day")?.value ?? 0);
-
-      return Date.UTC(year, month - 1, day, -7, 0, 0);
+      return Date.UTC(year, month, day, 0, 0, 0);
     };
 
-    const getWibStartTime = (now: Date, daysAgo: number): number => {
-      const startOfToday = getWibStartOfDayUtc(now);
+    const getUtcStartTime = (now: Date, daysAgo: number): number => {
+      const startOfToday = getUtcStartOfDay(now);
       return startOfToday - daysAgo * 24 * 60 * 60 * 1000;
     };
 
@@ -232,7 +216,7 @@ export default function Dashboard() {
   const nowTime = now.getTime();
 
   if (period === "Today") {
-    const startUTC = getWibStartTime(now, 0);
+    const startUTC = getUtcStartTime(now, 0);
 
     return allData.filter(d => {
       const t = new Date(d.time).getTime();
@@ -241,7 +225,7 @@ export default function Dashboard() {
   }
 
   if (period === "3 Days") {
-    const startUTC = getWibStartTime(now, 2);
+    const startUTC = getUtcStartTime(now, 2);
 
     return allData.filter(d => {
       const t = new Date(d.time).getTime();
@@ -250,7 +234,7 @@ export default function Dashboard() {
   }
 
   if (period === "7 Days") {
-    const startUTC = getWibStartTime(now, 6);
+    const startUTC = getUtcStartTime(now, 6);
 
     return allData.filter(d => {
       const t = new Date(d.time).getTime();
@@ -266,21 +250,21 @@ export default function Dashboard() {
         const nowTime = now.getTime();
 
         if (period === "Today") {
-            const startUTC = getWibStartTime(now, 0);
+            const startUTC = getUtcStartTime(now, 0);
 
             return allData.filter(d => {
             const t = new Date(d.time).getTime();
             return t >= startUTC && t <= nowTime;
             });
         } else if (period === "7 Days") {
-            const startUTC = getWibStartTime(now, 6);
+            const startUTC = getUtcStartTime(now, 6);
 
             return allData.filter(d => {
             const t = new Date(d.time).getTime();
             return t >= startUTC && t <= nowTime;
             });
         } else if (period === "3 Days") {
-            const startUTC = getWibStartTime(now, 2);
+            const startUTC = getUtcStartTime(now, 2);
 
             return allData.filter(d => {
             const t = new Date(d.time).getTime();
@@ -296,21 +280,21 @@ export default function Dashboard() {
         const nowTime = now.getTime();
 
         if (period === "Today") {
-            const startUTC = getWibStartTime(now, 0);
+            const startUTC = getUtcStartTime(now, 0);
 
             return allData.filter(d => {
             const t = new Date(d.time).getTime();
             return t >= startUTC && t <= nowTime;
             });
         } else if (period === "7 Days") {
-            const startUTC = getWibStartTime(now, 6);
+            const startUTC = getUtcStartTime(now, 6);
 
             return allData.filter(d => {
             const t = new Date(d.time).getTime();
             return t >= startUTC && t <= nowTime;
             });
         } else if (period === "3 Days") {
-            const startUTC = getWibStartTime(now, 2);
+            const startUTC = getUtcStartTime(now, 2);
 
             return allData.filter(d => {
             const t = new Date(d.time).getTime();
@@ -321,13 +305,22 @@ export default function Dashboard() {
         return allData;
     };
 
-  const filteredData = getFilteredDstData(dstData, selected);
-  const filteredSWSData = getFilteredSWData(swData, selected);
-  const filteredBzData = getFilteredBzData(bzData, selected);
+  const filteredData = React.useMemo(() => 
+    getFilteredDstData(dstData, selected),
+    [dstData, selected]
+  );
+  const filteredSWSData = React.useMemo(() => 
+    getFilteredSWData(swData, selected),
+    [swData, selected]
+  );
+  const filteredBzData = React.useMemo(() => 
+    getFilteredBzData(bzData, selected),
+    [bzData, selected]
+  );
 
-  const dstStatus = getLatestDSTStatus(dstData);
-  const swStatus = getLatestSWStatus(swData);
-  const bzStatus = getLatestBzStatus(bzData);
+  const dstStatus = React.useMemo(() => getLatestDSTStatus(dstData), [dstData]);
+  const swStatus = React.useMemo(() => getLatestSWStatus(swData), [swData]);
+  const bzStatus = React.useMemo(() => getLatestBzStatus(bzData), [bzData]);
 
   const dummyDstData = React.useMemo(() => {
     const now = new Date();
@@ -336,18 +329,26 @@ export default function Dashboard() {
     const month = now.getUTCMonth();
     const day = now.getUTCDate();
     const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
 
-    return [
-      { time: new Date(Date.UTC(year, month, day, hour - 9)), dst: -5 },  
-      { time: new Date(Date.UTC(year, month, day, hour - 8)), dst: -20 },
-      { time: new Date(Date.UTC(year, month, day, hour - 7)), dst: -30 },
-      { time: new Date(Date.UTC(year, month, day, hour - 6)), dst: -40 },
-      { time: new Date(Date.UTC(year, month, day, hour - 5)), dst: -50 },
-      { time: new Date(Date.UTC(year, month, day, hour - 4)), dst: -60 },
-      { time: new Date(Date.UTC(year, month, day, hour - 3)), dst: -70 },
-      { time: new Date(Date.UTC(year, month, day, hour - 2)), dst: -80 },
-      { time: new Date(Date.UTC(year, month, day, hour - 1)), dst: -90 },
-      { time: new Date(Date.UTC(year, month, day, hour)), dst: -110 }, 
+    const trigger = new Date(Date.UTC(year, month, day, hour, minute));
+
+    return [    
+      {
+        time: new Date(trigger.getTime() - (9 * 60 + 58) * 60 * 1000),
+        dst: -5,
+      },
+
+      { time: new Date(trigger.getTime() - 8 * 60 * 60 * 1000), dst: -20 },
+      { time: new Date(trigger.getTime() - 7 * 60 * 60 * 1000), dst: -30 },
+      { time: new Date(trigger.getTime() - 6 * 60 * 60 * 1000), dst: -40 },
+      { time: new Date(trigger.getTime() - 5 * 60 * 60 * 1000), dst: -50 },
+      { time: new Date(trigger.getTime() - 4 * 60 * 60 * 1000), dst: -60 },
+      { time: new Date(trigger.getTime() - 3 * 60 * 60 * 1000), dst: -70 },
+      { time: new Date(trigger.getTime() - 2 * 60 * 60 * 1000), dst: -80 },
+      { time: new Date(trigger.getTime() - 1 * 60 * 60 * 1000), dst: -90 },
+      
+      { time: trigger, dst: -110 },
     ];
   }, []);
 
@@ -355,13 +356,13 @@ export default function Dashboard() {
     const interval = setInterval(() => {
       const result = analyzeStorm(dummyDstData);
       setStorm(result);
-    }, 1000); 
+    }, 300000); 
 
     return () => clearInterval(interval);
-  }, []);
-  const lastDstData = dstData.at(-1);
-  const lastSwData = swData.at(-1);
-  const lastBzData = bzData.at(-1);
+  }, [dummyDstData]);
+  const lastDstData = React.useMemo(() => dstData.at(-1), [dstData]);
+  const lastSwData = React.useMemo(() => swData.at(-1), [swData]);
+  const lastBzData = React.useMemo(() => bzData.at(-1), [bzData]);
 
   const isStormActive = storm && storm?.remainingHours > 0;
   const remaining = storm?.remainingHours ?? 0;
@@ -386,7 +387,7 @@ export default function Dashboard() {
                   ? lastDstData!.time.toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "long",
-                      timeZone: "Asia/Jakarta",
+                      timeZone: "UTC",
                     })
                   : "-"}
             </div>
@@ -400,13 +401,13 @@ export default function Dashboard() {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                      timeZone: "Asia/Jakarta",
+                      timeZone: "UTC",
                     })
                   : "-"
                 }
               </p>
               <p className="font-semibold">
-                WIB
+                UTC
               </p>
             </div>
           </div>
@@ -431,7 +432,7 @@ export default function Dashboard() {
                   ? lastSwData!.time.toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "long",
-                      timeZone: "Asia/Jakarta",
+                      timeZone: "UTC",
                     })
                   : "-"}
               </p>
@@ -446,12 +447,12 @@ export default function Dashboard() {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                      timeZone: "Asia/Jakarta",
+                      timeZone: "UTC",
                     })
                   : "-"
                 }
               </p>
-              <p className="font-semibold">WIB</p>                        
+              <p className="font-semibold">UTC</p>                        
             </div>
           </div>
           <div className="flex justify-between">
@@ -475,7 +476,7 @@ export default function Dashboard() {
                   ? lastBzData!.time.toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "long",
-                    timeZone: "Asia/Jakarta",
+                    timeZone: "UTC",
                   })
                   : "-"
                 }
@@ -492,13 +493,13 @@ export default function Dashboard() {
                           hour: "2-digit",
                           minute: "2-digit",
                           hour12: false,
-                          timeZone: "Asia/Jakarta",
+                          timeZone: "UTC",
                       })
                     : "-"
                   }
                 </p>
                 <p className="font-semibold">
-                  WIB
+                  UTC
                 </p>
               </div>
           </div>
@@ -536,7 +537,8 @@ export default function Dashboard() {
                   <span className="font-bold">
                     {remaining >= 1
                       ? `${Math.floor(remaining)} hours`
-                      : `${Math.floor(remaining * 60)} minutes`}
+                      : `${Math.floor(remaining * 60)} minutes`
+                    }
                   </span>
                 </p>
                 <ExclamationTriangleIcon className="w-7 h-7 text-white" />
@@ -552,7 +554,7 @@ export default function Dashboard() {
           ) : filteredData.length === 0 ? (
             <div className="text-center m-10">No data available</div>
           ) : (
-            <DSTChart data={dstData} period={selected} />
+            <DSTChart data={filteredData} period={selected} />
           )}
         </Card>
         <Card>
