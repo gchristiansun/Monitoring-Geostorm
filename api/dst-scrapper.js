@@ -16,7 +16,7 @@ function parseDSTHeader(line) {
     const mm = Number(line.substring(5, 7));
     const dd = Number(line.substring(8, 10));
 
-    if (isNaN(yy) || isNaN(mm) || isNaN(dd)) return null;
+    if (Number.isNaN(yy) || Number.isNaN(mm) || Number.isNaN(dd)) return null;
 
     return {
       year: 2000 + yy,
@@ -66,24 +66,6 @@ export default async function handler(req, res) {
 
           const valuesPart = line.substring(20).trim();
           const values = valuesPart.split(/\s+/);
-
-          // values.slice(0, 24).forEach((val, i) => {
-          //   const value = Number(val);
-
-          //   if (!isNaN(value) && value > -500 && value < 100) {
-          //     const dateObj = new Date(
-          //       Date.UTC(year, monthIndex, day, i)
-          //     );
-
-          //     allData.push({
-          //       datetime: dateObj.toISOString(), // UTC
-          //       // day,
-          //       // hour: i,
-          //       dst: value,
-          //     });
-          //   }            
-          // });
-
           const sliced = values.slice(0, 24);
 
           for (let i = 0; i < sliced.length; i++) {
@@ -96,7 +78,7 @@ export default async function handler(req, res) {
 
             let finalValue = null;
 
-            if (!isNaN(value) && value > -500 && value < 100) {
+            if (!Number.isNaN(value) && value > -500 && value < 100) {
               finalValue = value;
             }
 

@@ -13,7 +13,7 @@ async function fetchSolarWindSpeed() {
       const parse = (val) => {
         if (val === null || val === "" || val === "null") return null;
         const num = Number(val);
-        return isNaN(num) ? null : num;
+        return Number.isNaN(num) ? null : num;
       };
 
       return {
