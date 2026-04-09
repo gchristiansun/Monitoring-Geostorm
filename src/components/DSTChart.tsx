@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
     LineChart,
     Line,
@@ -16,6 +17,13 @@ type DSTData = {
     dst: number | null;
 };
 
+type ChartData = {
+    index: number;
+    day: number;
+    time: Date;
+    dst: number;
+};
+
 const UTC_TIMEZONE = "UTC";
 
 const utcDayFormatter = new Intl.DateTimeFormat("en-US", {
@@ -29,14 +37,76 @@ const utcHourFormatter = new Intl.DateTimeFormat("en-US", {
   hour12: false,
 });
 
+const utcDateFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: UTC_TIMEZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+const utcTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: UTC_TIMEZONE,
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
 const getUtcDay = (date: Date) => Number(utcDayFormatter.format(date));
 const getUtcHour = (date: Date) => Number(utcHourFormatter.format(date));
-const formatUtcDate = (date: Date) => date.toLocaleDateString("en-US", { timeZone: UTC_TIMEZONE });
-const formatUtcTime = (date: Date) => date.toLocaleTimeString("en-US", { timeZone: UTC_TIMEZONE, hour: "2-digit", minute: "2-digit", hour12: false });
+const formatUtcDate = (date: Date) => utcDateFormatter.format(date);
+const formatUtcTime = (date: Date) => utcTimeFormatter.format(date);
 
-type ChartData = DSTData & {
-    index: number;
-    timeString: string;
+const buildTicks = (data: ChartData[], useHour: boolean) =>
+  data
+    .map((item) => ({ value: useHour ? getUtcHour(item.time) : item.day, index: item.index }))
+    .filter((item, index, arr) => {
+      if (index === 0) return true;
+      const isNewValue = item.value !== arr[index - 1].value;
+      return useHour ? isNewValue && item.value % 1 === 0 : isNewValue;
+    })
+    .map((item) => item.index);
+
+const formatTooltipLabel = (data: ChartData[], label: string | number) => {
+  if (label === undefined || label === null) return "";
+  const index = Number(label);
+  const datum = data[index];
+  return datum ? `${formatUtcDate(datum.time)} ${formatUtcTime(datum.time)}` : "";
+};
+
+const ChartTick = ({
+  x,
+  y,
+  payload,
+  chartData,
+  isToday,
+}: {
+  x?: number;
+  y?: number;
+  payload?: { value: number };
+  chartData: ChartData[];
+  isToday: boolean;
+}) => {
+  const datum = chartData[payload?.value ?? -1];
+  if (!datum) return null;
+
+  return (
+    <text x={x} y={y} textAnchor="middle" fontSize={10} fill="#333" fontWeight="bold">
+      {isToday ? (
+        <tspan x={x} dy="1.2em">
+          {formatUtcTime(datum.time)}
+        </tspan>
+      ) : (
+        <>
+          <tspan x={x} dy="1.2em">
+            {formatUtcDate(datum.time)}
+          </tspan>
+          <tspan x={x} dy="1.2em">
+            {formatUtcTime(datum.time)}
+          </tspan>
+        </>
+      )}
+    </text>
+  );
 };
 
 type Props = {
@@ -45,57 +115,20 @@ type Props = {
 };
 
 function DSTChart({ data, period = "7 Days" }: Props) {
-  const chartData: ChartData[] = data
-    .filter(d => d.dst !== null)
-    .map((d, index) => ({
-      index,
-      day: getUtcDay(d.time),
-      timeString: d.time.toLocaleString("en-US", { timeZone: UTC_TIMEZONE }),
-      time: d.time,
-      dst: d.dst
-    }));
+  const isToday = period === "Today";
 
-  const dayTicks = chartData
-    .map((d, i) => ({ day: getUtcDay(d.time), index: i}))
-    .filter((item, i , arr) => {
-      return i === 0 || item.day !== arr[i - 1].day;
-    })
-    .map((item) => item.index)
+  const chartData: ChartData[] = useMemo(() => {
+    return data
+      .filter((item): item is { time: Date; dst: number } => item.dst !== null)
+      .map((item, index) => ({
+        index,
+        day: getUtcDay(item.time),
+        time: item.time,
+        dst: item.dst,
+      }));
+  }, [data]);
 
-  const hourTicks = chartData
-    .map((d, i) => ({ hour: getUtcHour(d.time), index: i}))
-    .filter((item, i, arr) => {
-      const isNewhour = i === 0 || item.hour !== arr[i - 1].hour;
-      const isInterval = item.hour % 1 === 0;
-
-      return isNewhour && isInterval;
-    }) 
-    .map((item) => item.index)
-
-  const activeTicks = period === "Today" ? hourTicks : dayTicks
-
-  const CustomTick = ({ x, y, payload }: any) => {
-    const d = chartData[payload.value];
-    if (!d) return null;
-
-    const date = formatUtcDate(d.time);
-    const time = formatUtcTime(d.time);
-
-    if (period === "Today") {
-      return (
-        <text x={x} y={y} textAnchor="middle" fontSize={10} fill="#333" fontWeight={"bold"}>
-          <tspan x={x} dy="1.2em">{time}</tspan>
-        </text>
-      )
-    }
-
-    return (
-      <text x={x} y={y} textAnchor="middle" fontSize={10} fill="#333" fontWeight={"bold"}>
-        <tspan x={x} dy="1.2em">{date}</tspan>
-        <tspan x={x} dy="1.2em">{time}</tspan>
-      </text>
-    );
-  };
+  const activeTicks = useMemo(() => buildTicks(chartData, isToday), [chartData, isToday]);
 
   return (
     <ResponsiveContainer width="100%" height={400} className='focus:b-0 onClick:b-0'>
@@ -105,17 +138,10 @@ function DSTChart({ data, period = "7 Days" }: Props) {
         <XAxis
           dataKey="index"
           ticks={activeTicks}
-          tickFormatter={(value: number) => {
-            const d = chartData[value];
-            if (d) {
-              return formatUtcDate(d.time) + ' ' + formatUtcTime(d.time);
-            }
-            return "";
-          }}
-          tick={<CustomTick />}          
+          tick={<ChartTick chartData={chartData} isToday={isToday} />}
           textAnchor="middle"
           height={90}
-          padding={{ left: 30, right: 30 }}          
+          padding={{ left: 30, right: 30 }}
         >
           <Label
             value="Time (UTC)"
@@ -138,14 +164,7 @@ function DSTChart({ data, period = "7 Days" }: Props) {
             }
             return [`${value ?? "-"} nT`, "Dst"];
           }}
-          labelFormatter={(label) => {
-            if (typeof label !== "number" && typeof label !== "string") {
-              return "";
-            }
-            const index = Number(label);
-            const d = chartData[index];
-            return d ? d.time.toLocaleString("en-US", { timeZone: UTC_TIMEZONE }) : "";
-          }}
+          labelFormatter={(label) => formatTooltipLabel(chartData, label)}
         />
 
         <Line
@@ -153,7 +172,7 @@ function DSTChart({ data, period = "7 Days" }: Props) {
           dataKey="dst"
           stroke="#ff0000"
           dot={false}
-          strokeWidth={2}          
+          strokeWidth={2}
         />
 
         <Brush
@@ -164,7 +183,9 @@ function DSTChart({ data, period = "7 Days" }: Props) {
         />
 
         <ReferenceLine y={-100} stroke="#ff0000" strokeDasharray="3 3" />
-        <ReferenceLine x={chartData[chartData.length - 1]?.index} stroke="#ff0000" strokeDasharray="3 3" />
+        {chartData.length > 0 && (
+          <ReferenceLine x={chartData[chartData.length - 1].index} stroke="#ff0000" strokeDasharray="3 3" />
+        )}
       </LineChart>
     </ResponsiveContainer>
   );

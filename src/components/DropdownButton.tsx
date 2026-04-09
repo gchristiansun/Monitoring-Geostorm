@@ -13,7 +13,7 @@ export default function Dropdown({ onSelect }: DropdownProps) {
 
   const [selected, setSelected] = useState<string>(() => {
     const saved = localStorage.getItem("dropdown-selected");
-    return saved || "Today";
+    return saved || "7 Days";
   });
 
   const handleSelect = (value: string) => {
