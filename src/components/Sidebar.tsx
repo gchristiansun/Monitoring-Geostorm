@@ -5,7 +5,6 @@ export interface AdminSidebarProps {
 	className?: string
 	isOpen?: boolean
 	onClose?: () => void
-	active?: 'dashboard' | 'dataset' | 'info'
 }
 
 function cn(...parts: Array<string | false | null | undefined>) {
@@ -75,6 +74,7 @@ const AdminSidebar = ({ isOpen = false, onClose }: AdminSidebarProps) => {
 								)
 							}
 							end={item.key === 'dashboard'}
+							onClick={onClose}
 						>
 							<span className={cn('flex h-6 w-6 items-center justify-center')}>
 								<Icon name={item.icon} />
