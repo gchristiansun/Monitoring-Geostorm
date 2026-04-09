@@ -112,6 +112,7 @@ export default async function handler(req, res) {
         }
       } catch (err) {
         console.error("FAILED:", src.url);
+        console.error(err);
       }
     }
 

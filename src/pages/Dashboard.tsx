@@ -7,22 +7,12 @@ import SWSChart from "../components/SWSChart";
 import BzChart from "../components/BzChart";
 import LoadingSpinner from "../components/LoadingSpinner";
 import StatusCircle from "../components/StatusCircle";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import  { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import React from "react";
 
 type APIDSTData = {
   datetime: string;
   dst: number;
-};
-
-type APISWData = {
-  time: string;
-  speed: number | null;
-};
-
-type APIBzData = {
-  time: string;
-  bz: number | null;
 };
 
 type DSTData = {
@@ -37,19 +27,12 @@ type SWData = {
 
 type BzData = {
   time: Date;
-  bz: number | null;
-};
+  bz: number | null
+}
 
 type DSTStatus = "Severe Storm" | "Major Storm" | "Moderate Storm" | "Minor Storm" | "Active" | "Quiet" | "-";
 type SWStatus = "HSSWS" | "Quiet" | "-";
 type BzStatus = "Quiet" | "Warning" | "-";
-
-type StormData = {
-  onset: DSTData;
-  trigger: DSTData;
-  durationHours: number;
-  remainingHours: number;
-} | null;
 
 function getLatestDSTStatus(data: DSTData[]): DSTStatus {
     if (!data.length) return "-";
@@ -84,113 +67,6 @@ function getLatestBzStatus(data: BzData[]): BzStatus {
     return "Quiet";
 }
 
-const getUtcStartOfDay = (date: Date): number => {
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth();
-  const day = date.getUTCDate();
-
-  return Date.UTC(year, month, day, 0, 0, 0);
-};
-
-const getUtcStartTime = (now: Date, daysAgo: number): number => {
-  const startOfToday = getUtcStartOfDay(now);
-  return startOfToday - daysAgo * 24 * 60 * 60 * 1000;
-};
-
-const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
-  const now = new Date();
-  const nowTime = now.getTime();
-
-  if (period === "Today") {
-    const startUTC = getUtcStartTime(now, 0);
-
-    return allData.filter(d => {
-      const t = new Date(d.time).getTime();
-      return t >= startUTC && t <= nowTime;
-    });
-  }
-
-  if (period === "3 Days") {
-    const startUTC = getUtcStartTime(now, 2);
-
-    return allData.filter(d => {
-      const t = new Date(d.time).getTime();
-      return t >= startUTC && t <= nowTime;
-    });
-  }
-
-  if (period === "7 Days") {
-    const startUTC = getUtcStartTime(now, 6);
-
-    return allData.filter(d => {
-      const t = new Date(d.time).getTime();
-      return t >= startUTC && t <= nowTime;
-    });
-  }
-
-  return allData;
-};
-
-const getFilteredSWData = (allData: SWData[], period: string): SWData[] => {
-    const now = new Date();
-    const nowTime = now.getTime();
-
-    if (period === "Today") {
-        const startUTC = getUtcStartTime(now, 0);
-
-        return allData.filter(d => {
-        const t = new Date(d.time).getTime();
-        return t >= startUTC && t <= nowTime;
-        });
-    } else if (period === "7 Days") {
-        const startUTC = getUtcStartTime(now, 6);
-
-        return allData.filter(d => {
-        const t = new Date(d.time).getTime();
-        return t >= startUTC && t <= nowTime;
-        });
-    } else if (period === "3 Days") {
-        const startUTC = getUtcStartTime(now, 2);
-
-        return allData.filter(d => {
-        const t = new Date(d.time).getTime();
-        return t >= startUTC && t <= nowTime;
-        });
-    }
-
-    return allData;
-};
-
-const getFilteredBzData = (allData: BzData[], period: string): BzData[] => {
-    const now = new Date();
-    const nowTime = now.getTime();
-
-    if (period === "Today") {
-        const startUTC = getUtcStartTime(now, 0);
-
-        return allData.filter(d => {
-        const t = new Date(d.time).getTime();
-        return t >= startUTC && t <= nowTime;
-        });
-    } else if (period === "7 Days") {
-        const startUTC = getUtcStartTime(now, 6);
-
-        return allData.filter(d => {
-        const t = new Date(d.time).getTime();
-        return t >= startUTC && t <= nowTime;
-        });
-    } else if (period === "3 Days") {
-        const startUTC = getUtcStartTime(now, 2);
-
-        return allData.filter(d => {
-        const t = new Date(d.time).getTime();
-        return t >= startUTC && t <= nowTime;
-        });
-    }
-
-    return allData;
-};
-
 export default function Dashboard() {
     const [dstData, setDstData] = useState<DSTData[]>([]);
     const [swData, setSwData] = useState<SWData[]>([]);
@@ -198,7 +74,7 @@ export default function Dashboard() {
     const [dstLoading, setDstLoading] = useState(true);
     const [swLoading, setSwLoading] = useState(true);
     const [bzLoading, setBzLoading] = useState(true);
-    const [storm, setStorm] = useState<StormData>(null);
+    const [storm, setStorm] = useState<any>(null);
     const [selected, setSelected] = useState<string>(() => {
         const saved = localStorage.getItem("dropdown-selected");
         return saved || "Today";
@@ -221,9 +97,9 @@ export default function Dashboard() {
             setDstLoading(false);
             });
         };
-        
+
         fetchData();
-        const interval = setInterval(fetchData, 180000);
+        const interval = setInterval(fetchData, 60000);
         return () => clearInterval(interval);
     }, []);
 
@@ -232,9 +108,9 @@ export default function Dashboard() {
         fetch("/api/sw-data")
             .then((res) => res.json())
             .then((res) => {
-            const processedData = res.data.map((d: APISWData) => ({
-                time: new Date(d.time),
-                speed: d.speed
+            const processedData = res.data.map((d: any) => ({
+                ...d,
+                time: new Date(d.time)
             }));
             setSwData(processedData);
             setSwLoading(false);
@@ -246,7 +122,7 @@ export default function Dashboard() {
         };
 
         fetchSWData();
-        const interval = setInterval(fetchSWData, 600000); 
+        const interval = setInterval(fetchSWData, 300000); 
         return () => clearInterval(interval);
     }, []);
 
@@ -255,21 +131,21 @@ export default function Dashboard() {
         fetch("/api/bz-data")
             .then((res) => res.json())
             .then((res) => {
-            const processedData = res.data.map((d: APIBzData) => ({
-                time: new Date(d.time),
-                bz: d.bz
+            const processedData = res.data.map((d: any) => ({
+                ...d,
+                time: new Date(d.time)
             }));
             setBzData(processedData);
             setBzLoading(false);
             })
             .catch((err) => {
             console.error(err);
-            setBzLoading(false);
+            setSwLoading(false);
             });
         };
 
         fetchBzData();
-        const interval = setInterval(fetchBzData, 600000); 
+        const interval = setInterval(fetchBzData, 300000); 
         return () => clearInterval(interval);
     }, []);
 
@@ -322,22 +198,120 @@ export default function Dashboard() {
       return null;
     };
 
-  const filteredData = React.useMemo(() => 
-    getFilteredDstData(dstData, selected),
-    [dstData, selected]
-  );
-  const filteredSWSData = React.useMemo(() => 
-    getFilteredSWData(swData, selected),
-    [swData, selected]
-  );
-  const filteredBzData = React.useMemo(() => 
-    getFilteredBzData(bzData, selected),
-    [bzData, selected]
-  );
+    const getUtcStartOfDay = (date: Date): number => {
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth();
+      const day = date.getUTCDate();
 
-  const dstStatus = React.useMemo(() => getLatestDSTStatus(dstData), [dstData]);
-  const swStatus = React.useMemo(() => getLatestSWStatus(swData), [swData]);
-  const bzStatus = React.useMemo(() => getLatestBzStatus(bzData), [bzData]);
+      return Date.UTC(year, month, day, 0, 0, 0);
+    };
+
+    const getUtcStartTime = (now: Date, daysAgo: number): number => {
+      const startOfToday = getUtcStartOfDay(now);
+      return startOfToday - daysAgo * 24 * 60 * 60 * 1000;
+    };
+
+    const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
+  const now = new Date();
+  const nowTime = now.getTime();
+
+  if (period === "Today") {
+    const startUTC = getUtcStartTime(now, 0);
+
+    return allData.filter(d => {
+      const t = new Date(d.time).getTime();
+      return t >= startUTC && t <= nowTime;
+    });
+  }
+
+  if (period === "3 Days") {
+    const startUTC = getUtcStartTime(now, 2);
+
+    return allData.filter(d => {
+      const t = new Date(d.time).getTime();
+      return t >= startUTC && t <= nowTime;
+    });
+  }
+
+  if (period === "7 Days") {
+    const startUTC = getUtcStartTime(now, 6);
+
+    return allData.filter(d => {
+      const t = new Date(d.time).getTime();
+      return t >= startUTC && t <= nowTime;
+    });
+  }
+
+  return allData;
+};
+
+    const getFilteredSWData = (allData: SWData[], period: string): SWData[] => {
+        const now = new Date();
+        const nowTime = now.getTime();
+
+        if (period === "Today") {
+            const startUTC = getUtcStartTime(now, 0);
+
+            return allData.filter(d => {
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
+            });
+        } else if (period === "7 Days") {
+            const startUTC = getUtcStartTime(now, 6);
+
+            return allData.filter(d => {
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
+            });
+        } else if (period === "3 Days") {
+            const startUTC = getUtcStartTime(now, 2);
+
+            return allData.filter(d => {
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
+            });
+        }
+
+        return allData;
+    };
+
+    const getFilteredBzData = (allData: BzData[], period: string): BzData[] => {
+        const now = new Date();
+        const nowTime = now.getTime();
+
+        if (period === "Today") {
+            const startUTC = getUtcStartTime(now, 0);
+
+            return allData.filter(d => {
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
+            });
+        } else if (period === "7 Days") {
+            const startUTC = getUtcStartTime(now, 6);
+
+            return allData.filter(d => {
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
+            });
+        } else if (period === "3 Days") {
+            const startUTC = getUtcStartTime(now, 2);
+
+            return allData.filter(d => {
+            const t = new Date(d.time).getTime();
+            return t >= startUTC && t <= nowTime;
+            });
+        }
+
+        return allData;
+    };
+
+  const filteredData = getFilteredDstData(dstData, selected);
+  const filteredSWSData = getFilteredSWData(swData, selected);
+  const filteredBzData = getFilteredBzData(bzData, selected);
+
+  const dstStatus = getLatestDSTStatus(dstData);
+  const swStatus = getLatestSWStatus(swData);
+  const bzStatus = getLatestBzStatus(bzData);
 
   const dummyDstData = React.useMemo(() => {
     const now = new Date();
@@ -373,13 +347,13 @@ export default function Dashboard() {
     const interval = setInterval(() => {
       const result = analyzeStorm(dummyDstData);
       setStorm(result);
-    }, 300000); 
+    }, 100000); 
 
     return () => clearInterval(interval);
-  }, [dummyDstData]);
-  const lastDstData = React.useMemo(() => dstData.at(-1), [dstData]);
-  const lastSwData = React.useMemo(() => swData.at(-1), [swData]);
-  const lastBzData = React.useMemo(() => bzData.at(-1), [bzData]);
+  }, []);
+  const lastDstData = dstData.at(-1);
+  const lastSwData = swData.at(-1);
+  const lastBzData = bzData.at(-1);
 
   const isStormActive = storm && storm?.remainingHours > 0;
   const remaining = storm?.remainingHours ?? 0;
@@ -464,12 +438,12 @@ export default function Dashboard() {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                      timeZone: "UTC",
+                      timeZone: "Asia/Jakarta",
                     })
                   : "-"
                 }
               </p>
-              <p className="font-semibold">UTC</p>                        
+              <p className="font-semibold">WIB</p>                        
             </div>
           </div>
           <div className="flex justify-between">
@@ -493,7 +467,7 @@ export default function Dashboard() {
                   ? lastBzData!.time.toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "long",
-                    timeZone: "UTC",
+                    timeZone: "Asia/Jakarta",
                   })
                   : "-"
                 }
@@ -510,13 +484,13 @@ export default function Dashboard() {
                           hour: "2-digit",
                           minute: "2-digit",
                           hour12: false,
-                          timeZone: "UTC",
+                          timeZone: "Asia/Jakarta",
                       })
                     : "-"
                   }
                 </p>
                 <p className="font-semibold">
-                  UTC
+                  WIB
                 </p>
               </div>
           </div>
