@@ -19,7 +19,7 @@ type SWData = {
 
 type ChartData = SWData & {
     index: number;
-    day: number; //
+    day: number; 
     timeString: string;
 };
 
@@ -166,7 +166,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
         />
 
         <ReferenceLine y={500} stroke="#ff0000" strokeDasharray="3 3" />
-        <ReferenceLine x={chartData[chartData.length - 1]?.index} stroke="#ff0000" strokeDasharray="3 3" />
+        
       </LineChart>      
     </ResponsiveContainer>
   );
