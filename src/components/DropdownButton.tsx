@@ -27,7 +27,7 @@ export default function Dropdown({ onSelect }: DropdownProps) {
     <div className="relative inline-block text-left">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-xl !bg-[#833AB4] hover:!bg-[#833AB4] gap-2 flex items-center"
+        className="rounded-xl !bg-[rgb(74,93,249)] hover:!bg-[rgb(66,82,237)] gap-2 flex items-center"
       >
         {selected}
         <ChevronDownIcon
@@ -38,13 +38,13 @@ export default function Dropdown({ onSelect }: DropdownProps) {
       </Button>
 
       {isOpen && (
-        <div className="absolute text-sm right-0 mt-2 w-40 rounded-md shadow-lg bg-white">
+        <div className="absolute text-sm right-0 mt-2 w-40 rounded-md shadow-lg bg-[var(--popover)] border border-[var(--border)] text-[var(--foreground)]">
           {options.map((option) => (
             <button
               key={option}
               onClick={() => handleSelect(option)}
-              className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                selected === option ? "font-semibold bg-gray-100" : ""
+              className={`block w-full text-left px-4 py-2 hover:bg-[var(--input)] ${
+                selected === option ? "font-semibold bg-[var(--input)]" : ""
               }`}
             >
               {option}

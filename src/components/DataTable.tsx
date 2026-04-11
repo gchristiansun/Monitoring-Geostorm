@@ -37,14 +37,14 @@ export default function DataTable<T>({
     <>
       {/* TABLE */}
       <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300">
-          <thead className="bg-gray-100">
+        <table className="min-w-full border border-[var(--border)]">
+          <thead className="bg-[var(--popover)] text-[var(--card-foreground)]">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="p-2 border text-left text-sm font-semibold"
+                    className="p-2 border border-[var(--border)] text-left text-sm font-semibold text-[var(--foreground)]"
                   >
                     {flexRender(
                       header.column.columnDef.header,
@@ -59,7 +59,7 @@ export default function DataTable<T>({
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center p-4">
+                <td colSpan={columns.length} className="text-center p-4 text-[var(--muted-foreground)]">
                   No data available
                 </td>
               </tr>
@@ -67,7 +67,7 @@ export default function DataTable<T>({
               table.getRowModel().rows.map((row) => (
                 <tr key={row.id} className="border-t">
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="p-2 border text-sm">
+                    <td key={cell.id} className="p-2 border border-[var(--border)] text-[var(--foreground)] text-sm">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -86,7 +86,7 @@ export default function DataTable<T>({
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="px-3 py-1 bg-[#833AB4] text-white rounded disabled:opacity-50"
+          className="px-3 py-1 bg-[rgb(74,93,249)] text-white rounded disabled:opacity-50"
         >
           Previous
         </button>
@@ -99,7 +99,7 @@ export default function DataTable<T>({
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="px-3 py-1 bg-[#833AB4] text-white rounded disabled:opacity-50"
+          className="px-3 py-1 bg-[rgb(74,93,249)] text-white rounded disabled:opacity-50"
         >
           Next
         </button>

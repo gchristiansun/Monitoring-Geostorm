@@ -43,19 +43,19 @@ const AdminSidebar = ({ isOpen = false, onClose }: AdminSidebarProps) => {
 
 			<aside
 				className={cn(
-					'fixed left-0 h-screen w-64 md:top-16 top-0 z-[60] bg-white border-r border-neutral-200 p-4',
+					'fixed left-0 h-screen w-64 md:top-16 top-0 z-[60] bg-[var(--sidebar)] border-[var(--sidebar-border)] p-4',
 					'transform transition-transform duration-300 ease-in-out',
 					isOpen ? 'translate-x-0' : '-translate-x-full',
 					'md:translate-x-0' // selalu tampil di desktop
 				)}
 			>
 				<div className="mb-4 flex items-center justify-between md:hidden">
-					<span className="text-base font-semibold">Menu</span>
+					<span className="text-base font-semibold text-[var(--sidebar-foreground)]">Menu</span>
 					<button
 						type="button"
 						aria-label="Close menu"
 						onClick={onClose}
-						className="rounded-md p-1 text-neutral-800 hover:bg-neutral-100"
+						className="rounded-md p-1 text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-ring)]"
 					>
 						<XMarkIcon className="h-5 w-5" />
 					</button>
@@ -67,16 +67,16 @@ const AdminSidebar = ({ isOpen = false, onClose }: AdminSidebarProps) => {
 							to={item.to}
 							className={({ isActive }) =>
 								cn(
-									'group flex w-full items-center gap-3 rounded-md px-4 py-2 text-sm font-medium transition-colors',
+									'group flex w-full items-center gap-3 rounded-md px-4 py-2 text-md font-medium transition-colors',
 									isActive
-										? 'bg-[#833AB4] text-white shadow-sm'
-										: 'text-neutral-800 hover:bg-neutral-100',
+									? 'bg-[rgb(74,93,249)] text-white shadow-sm'
+									: 'text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-ring)]',
 								)
 							}
 							end={item.key === 'dashboard'}
 							onClick={onClose}
 						>
-							<span className={cn('flex h-6 w-6 items-center justify-center')}>
+							<span className="flex h-6 w-6 items-center justify-center text-inherit">
 								<Icon name={item.icon} />
 							</span>
 							<span>{item.label}</span>

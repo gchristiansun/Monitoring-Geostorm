@@ -438,12 +438,12 @@ export default function Dashboard() {
                       hour: "2-digit",
                       minute: "2-digit",
                       hour12: false,
-                      timeZone: "Asia/Jakarta",
+                      timeZone: "UTC",
                     })
                   : "-"
                 }
               </p>
-              <p className="font-semibold">WIB</p>                        
+              <p className="font-semibold">UTC</p>                        
             </div>
           </div>
           <div className="flex justify-between">
@@ -467,7 +467,7 @@ export default function Dashboard() {
                   ? lastBzData!.time.toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "long",
-                    timeZone: "Asia/Jakarta",
+                    timeZone: "UTC",
                   })
                   : "-"
                 }
@@ -484,13 +484,13 @@ export default function Dashboard() {
                           hour: "2-digit",
                           minute: "2-digit",
                           hour12: false,
-                          timeZone: "Asia/Jakarta",
+                          timeZone: "UTC",
                       })
                     : "-"
                   }
                 </p>
                 <p className="font-semibold">
-                  WIB
+                  UTC
                 </p>
               </div>
           </div>
@@ -508,9 +508,9 @@ export default function Dashboard() {
                
         <Card
           className={`relative overflow-hidden p-4 rounded-xl shadow-md transition-all duration-300 ${
-            !isStormActive? "!bg-gray-50" : "!bg-red-500"
+            !isStormActive ? "bg-[var(--card)]" : "bg-[var(--destructive)] text-white"
           }`}
-        >          
+        >
           {isStormActive && (
             <div className="absolute inset-0 bg-gradient-to-br from-red-400 via-red-600 to-red-800 opacity-20" />
           )}
@@ -520,9 +520,9 @@ export default function Dashboard() {
           )}          
           <div className="relative z-10">
             {!storm ? (
-              <p className="text-sm text-gray-500">No storm detected</p>
+              <p className="text-sm text-[var(--muted-foreground)]">No storm detected</p>
             ) : (
-              <div className="space-y-2 text-sm text-white flex items-center justify-between">
+              <div className="space-y-2 text-sm text-[var(--foreground)] flex items-center justify-between">
                 <p>
                   A MUF depression is expected to occur within the next{" "}
                   <span className="font-bold">
@@ -532,7 +532,7 @@ export default function Dashboard() {
                     }
                   </span>
                 </p>
-                <ExclamationTriangleIcon className="w-7 h-7 text-white" />
+                <ExclamationTriangleIcon className="w-7 h-7 text-[var(--foreground)]" />
               </div>
             )}
           </div>

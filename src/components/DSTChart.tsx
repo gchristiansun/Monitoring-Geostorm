@@ -90,7 +90,7 @@ const ChartTick = ({
   if (!datum) return null;
 
   return (
-    <text x={x} y={y} textAnchor="middle" fontSize={10} fill="#333" fontWeight="bold">
+    <text x={x} y={y} textAnchor="middle" fontSize={10} fill="var(--foreground)" fontWeight="bold">
       {isToday ? (
         <tspan x={x} dy="1.2em">
           {formatUtcTime(datum.time)}
@@ -133,7 +133,7 @@ function DSTChart({ data, period = "7 Days" }: Props) {
   return (
     <ResponsiveContainer width="100%" height={400} className='focus:b-0 onClick:b-0'>
       <LineChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: 10 }}>
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
 
         <XAxis
           dataKey="index"
@@ -147,17 +147,21 @@ function DSTChart({ data, period = "7 Days" }: Props) {
             value="Time (UTC)"
             offset={30}
             position="insideBottom"
+            style={{ fill: 'var(--foreground)' }}
           />
         </XAxis>
 
         <YAxis
-          tick={{ fontSize: 12, fill: '#333', fontWeight: 'bold' }}
+          tick={{ fontSize: 12, fill: 'var(--foreground)', fontWeight: 'bold' }}
           domain={[-130, 130]}
         >
-          <Label value="nT" offset={0} position="insideLeft"></Label>
+          <Label value="nT" offset={0} position="insideLeft" style={{ fill: 'var(--foreground)' }}></Label>
         </YAxis>
 
         <Tooltip
+          wrapperStyle={{ backgroundColor: 'var(--card)', color: 'var(--foreground)', borderColor: 'var(--border)' }}
+          contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          labelStyle={{ color: 'var(--muted-foreground)' }}
           formatter={(value) => {
             if (Array.isArray(value)) {
               return [`${value.join(", ")} nT`, "Dst"];

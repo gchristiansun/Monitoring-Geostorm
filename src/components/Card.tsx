@@ -1,25 +1,18 @@
 import type { PropsWithChildren } from 'react'
 
-type CardVariant = 'light' | 'dark'
-
 export interface CardProps extends PropsWithChildren {
 	className?: string
-	variant?: CardVariant
 }
 
 function cn(...parts: Array<string | false | null | undefined>) {
 	return parts.filter(Boolean).join(' ')
 }
 
-const base = 'rounded-xl p-6 shadow-sm border'
-const variants: Record<CardVariant, string> = {
-	light: 'bg-white text-black border-neutral-200',
-	dark: 'bg-black text-white border-black',
-}
+const base = 'rounded-xl p-6 shadow-sm border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)]'
 
-const Card = ({ children, className, variant = 'light' }: CardProps) => {
+const Card = ({ children, className }: CardProps) => {
 	return (
-		<div className={cn(base, className, variants[variant])}>
+		<div className={cn(base, className)}>
 			{children}
 		</div>
 	)

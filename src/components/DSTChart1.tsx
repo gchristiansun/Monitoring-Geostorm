@@ -81,7 +81,7 @@ function DSTChart({ data, period = "7 Days" }: Props) {
                 }
                 return `${date.getUTCDate()}`
             }}
-            tick={{ fontSize: 12, fill: "#333", fontWeight: "bold" }}          
+            tick={{ fontSize: 12, fill: "var(--foreground)", fontWeight: "bold" }}          
             padding={{ left: 25, right: 25 }}
         >
         <Label
@@ -92,13 +92,16 @@ function DSTChart({ data, period = "7 Days" }: Props) {
         </XAxis>
 
         <YAxis 
-          tick={{ fontSize: 12, fill: '#333', fontWeight: 'bold' }}
+          tick={{ fontSize: 12, fill: 'var(--foreground)', fontWeight: 'bold' }}
           domain={[-140, 140]}
         >
-          <Label value="nT" offset={0} position="insideLeft"></Label>
+          <Label value="nT" offset={0} position="insideLeft" style={{ fill: 'var(--foreground)' }}></Label>
         </YAxis>
 
         <Tooltip
+          wrapperStyle={{ backgroundColor: 'var(--card)', color: 'var(--foreground)', borderColor: 'var(--border)' }}
+          contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          labelStyle={{ color: 'var(--muted-foreground)' }}
           formatter={(value) => {
             if (Array.isArray(value)) {
               return [`${value.join(", ")} nT`, "DST"];
