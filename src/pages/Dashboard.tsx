@@ -77,7 +77,7 @@ export default function Dashboard() {
     const [storm, setStorm] = useState<any>(null);
     const [selected, setSelected] = useState<string>(() => {
         const saved = localStorage.getItem("dropdown-selected");
-        return saved || "Today";
+        return saved || "7 Days";
     });
     const { addNotification } = useNotifications();
     const prevWarningState = React.useRef({
@@ -218,38 +218,38 @@ export default function Dashboard() {
     };
 
     const getFilteredDstData = (allData: DSTData[], period: string): DSTData[] => {
-  const now = new Date();
-  const nowTime = now.getTime();
+      const now = new Date();
+      const nowTime = now.getTime();
 
-  if (period === "Today") {
-    const startUTC = getUtcStartTime(now, 0);
+      if (period === "Today") {
+        const startUTC = getUtcStartTime(now, 0);
 
-    return allData.filter(d => {
-      const t = new Date(d.time).getTime();
-      return t >= startUTC && t <= nowTime;
-    });
-  }
+        return allData.filter(d => {
+          const t = new Date(d.time).getTime();
+          return t >= startUTC && t <= nowTime;
+        });
+      }
 
-  if (period === "3 Days") {
-    const startUTC = getUtcStartTime(now, 2);
+      if (period === "3 Days") {
+        const startUTC = getUtcStartTime(now, 2);
 
-    return allData.filter(d => {
-      const t = new Date(d.time).getTime();
-      return t >= startUTC && t <= nowTime;
-    });
-  }
+        return allData.filter(d => {
+          const t = new Date(d.time).getTime();
+          return t >= startUTC && t <= nowTime;
+        });
+      }
 
-  if (period === "7 Days") {
-    const startUTC = getUtcStartTime(now, 6);
+      if (period === "7 Days") {
+        const startUTC = getUtcStartTime(now, 6);
 
-    return allData.filter(d => {
-      const t = new Date(d.time).getTime();
-      return t >= startUTC && t <= nowTime;
-    });
-  }
+        return allData.filter(d => {
+          const t = new Date(d.time).getTime();
+          return t >= startUTC && t <= nowTime;
+        });
+      }
 
-  return allData;
-};
+      return allData;
+    };
 
     const getFilteredSWData = (allData: SWData[], period: string): SWData[] => {
         const now = new Date();
@@ -381,8 +381,7 @@ export default function Dashboard() {
       return;
     }
 
-    if (wasWarningActive && isWarningActive) {
-      // only notify again when the severity level changes
+    if (wasWarningActive && isWarningActive) {      
       const warningLevelChanged =
         previousState.bzStatus !== bzStatus ||
         previousState.swStatus !== swStatus ||
@@ -407,7 +406,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="flex flex-row items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-3xl font-semibold">Dashboard</h1>
         <Dropdown onSelect={(period) => setSelected(period)} />
       </div>
 

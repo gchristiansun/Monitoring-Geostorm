@@ -31,39 +31,24 @@ type BzData = {
   bz?: number | null;
 }
 
-const WIB_TIMEZONE = "Asia/Jakarta";
+const UTC_TIMEZONE = "UTC";
 
-const getWibStartOfDayUtc = (date: Date): number => {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: WIB_TIMEZONE,
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: false,
-  }).formatToParts(date);
-
-  const year = Number(parts.find((part) => part.type === "year")?.value ?? 0);
-  const month = Number(parts.find((part) => part.type === "month")?.value ?? 0);
-  const day = Number(parts.find((part) => part.type === "day")?.value ?? 0);
-
-  return Date.UTC(year, month - 1, day, -7, 0, 0);
+const getUtcStartOfDayUtc = (date: Date): number => {
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0);
 };
 
-const getWibStartTime = (now: Date, daysAgo: number): number => {
-  return getWibStartOfDayUtc(now) - daysAgo * 24 * 60 * 60 * 1000;
+const getUtcStartTime = (now: Date, daysAgo: number): number => {
+  return getUtcStartOfDayUtc(now) - daysAgo * 24 * 60 * 60 * 1000;
 };
 
-const formatWibDateTime = (value: string) =>
-  new Date(value).toLocaleString("en-US", { timeZone: WIB_TIMEZONE });
+const formatUtcDateTime = (value: string) =>
+  new Date(value).toLocaleString("en-US", { timeZone: UTC_TIMEZONE });
 
 const columnsDst: ColumnDef<DSTData>[] = [
   {
     accessorKey: "datetime",
-    header: "Time",
-    cell: ({ getValue }) => formatWibDateTime(getValue() as string),
+    header: "Time (UTC)",
+    cell: ({ getValue }) => formatUtcDateTime(getValue() as string),
   }, 
   // {
   //   accessorKey: "day",
@@ -85,8 +70,8 @@ const columnsDst: ColumnDef<DSTData>[] = [
 const columnsSWS: ColumnDef<SolarWindData>[] = [
   {
     accessorKey: "time",
-    header: "Time",
-    cell: ({ getValue }) => formatWibDateTime(getValue() as string),
+    header: "Time (UTC)",
+    cell: ({ getValue }) => formatUtcDateTime(getValue() as string),
   },
   {
     accessorKey: "density",
@@ -111,8 +96,8 @@ const columnsSWS: ColumnDef<SolarWindData>[] = [
 const columnsIMF: ColumnDef<BzData>[] = [
   {
     accessorKey: "time",
-    header: "Time",
-    cell: ({ getValue }) => formatWibDateTime(getValue() as string),
+    header: "Time (UTC)",
+    cell: ({ getValue }) => formatUtcDateTime(getValue() as string),
   }, 
   {
     accessorKey: "bx",
@@ -138,7 +123,7 @@ export default function Dataset() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string>(() => {
         const saved = localStorage.getItem("dropdown-selected");
-        return saved || "Today";
+        return saved || "7 Days";
     });
 
   useEffect(() => {
@@ -211,7 +196,7 @@ export default function Dataset() {
     const now = new Date();
     const nowTime = now.getTime();
     const daysAgo = period === "3 Days" ? 2 : period === "7 Days" ? 6 : 0;
-    const startTime = getWibStartTime(now, daysAgo);
+    const startTime = getUtcStartTime(now, daysAgo);
 
     return allData.filter((d) => {
       const t = new Date(d.datetime).getTime();
@@ -226,7 +211,7 @@ export default function Dataset() {
     const now = new Date();
     const nowTime = now.getTime();
     const daysAgo = period === "3 Days" ? 2 : period === "7 Days" ? 6 : 0;
-    const startTime = getWibStartTime(now, daysAgo);
+    const startTime = getUtcStartTime(now, daysAgo);
 
     return allData.filter((d) => {
       const t = new Date(d.time).getTime();
@@ -241,7 +226,7 @@ export default function Dataset() {
     const now = new Date();
     const nowTime = now.getTime();
     const daysAgo = period === "3 Days" ? 2 : period === "7 Days" ? 6 : 0;
-    const startTime = getWibStartTime(now, daysAgo);
+    const startTime = getUtcStartTime(now, daysAgo);
 
     return allData.filter((d) => {
       const t = new Date(d.time).getTime();
@@ -256,7 +241,7 @@ export default function Dataset() {
   return (
     <Layout>
       <div className="flex flex-row items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Dataset</h1>
+        <h1 className="text-3xl font-semibold">Dataset</h1>
         <Dropdown onSelect={(period) => setSelected(period)} />
       </div>
 

@@ -25,12 +25,9 @@ export default function Layout({ children }: PropsWithChildren) {
         onThemeToggle={() => setTheme(theme === "dark" ? "light" : "dark")}
       />
 
-      {/* Main */}
-      <div className="flex">
-        {/* Sidebar (desktop + mobile overlay) */}
+      <div className="flex">        
         <AdminSidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-        {/* Content */}
+        
         <main className="flex-1 min-h-screen px-4 py-6 md:px-6 md:ml-64">
           {children}
         </main>
