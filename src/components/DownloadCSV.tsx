@@ -6,7 +6,7 @@ function convertToCSV(data: any[]) {
   const escapeValue = (value: any) => {
     if (value === null || value === undefined) return "";
     const stringValue = String(value);
-    const escaped = stringValue.replace(/"/g, '""');
+    const escaped = stringValue.replaceAll(/"/g, '""');
     return `"${escaped}"`;
   };
 

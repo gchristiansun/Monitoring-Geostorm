@@ -38,9 +38,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setNotifications((current) => [newNotification, ...current]);
 
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-      new window.Notification(title, {
+      const notif = new window.Notification(title, {
         body: message,
       });
+
+      notif.onclick = () => {
+        window.focus();
+      };
     }
   };
 
