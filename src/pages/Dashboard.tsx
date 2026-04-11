@@ -80,7 +80,11 @@ export default function Dashboard() {
         return saved || "Today";
     });
     const { addNotification } = useNotifications();
-    const [lastNotificationFingerprint, setLastNotificationFingerprint] = useState<string>("");
+    const prevWarningState = React.useRef({
+      bzStatus: "-" as BzStatus,
+      swStatus: "-" as SWStatus,
+      dstStatus: "-" as DSTStatus,
+    });
 
     useEffect(() => {
         const fetchData = () => {
@@ -315,44 +319,15 @@ export default function Dashboard() {
   const swStatus = getLatestSWStatus(swData);
   const bzStatus = getLatestBzStatus(bzData);
 
-  const dummyDstData = React.useMemo(() => {
-    const now = new Date();
-
-    const year = now.getUTCFullYear();
-    const month = now.getUTCMonth();
-    const day = now.getUTCDate();
-    const hour = now.getUTCHours();
-    const minute = now.getUTCMinutes();
-
-    const trigger = new Date(Date.UTC(year, month, day, hour, minute));
-
-    return [    
-      {
-        time: new Date(trigger.getTime() - (9 * 60 + 58) * 60 * 1000),
-        dst: -5,
-      },
-
-      { time: new Date(trigger.getTime() - 8 * 60 * 60 * 1000), dst: -20 },
-      { time: new Date(trigger.getTime() - 7 * 60 * 60 * 1000), dst: -30 },
-      { time: new Date(trigger.getTime() - 6 * 60 * 60 * 1000), dst: -40 },
-      { time: new Date(trigger.getTime() - 5 * 60 * 60 * 1000), dst: -50 },
-      { time: new Date(trigger.getTime() - 4 * 60 * 60 * 1000), dst: -60 },
-      { time: new Date(trigger.getTime() - 3 * 60 * 60 * 1000), dst: -70 },
-      { time: new Date(trigger.getTime() - 2 * 60 * 60 * 1000), dst: -80 },
-      { time: new Date(trigger.getTime() - 1 * 60 * 60 * 1000), dst: -90 },
-      
-      { time: trigger, dst: -110 },
-    ];
-  }, []);
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      const result = analyzeStorm(dummyDstData);
-      setStorm(result);
-    }, 100000); 
+    if (dstData.length === 0) {
+      setStorm(null);
+      return;
+    }
 
-    return () => clearInterval(interval);
-  }, []);
+    setStorm(analyzeStorm(dstData));
+  }, [dstData]);
+
   const lastDstData = dstData.at(-1);
   const lastSwData = swData.at(-1);
   const lastBzData = bzData.at(-1);
@@ -361,29 +336,70 @@ export default function Dashboard() {
     const warnings: string[] = [];
 
     if (bzStatus === "Warning") {
-      warnings.push(`IMF Bz warning: ${lastBzData?.bz ?? "unknown"} nT`);
+      warnings.push(`IMF Bz warning`);
     }
 
     if (swStatus === "HSSWS") {
-      warnings.push(`Solar wind speed alert: ${lastSwData?.speed ?? "unknown"} Km/s`);
+      warnings.push(`Solar wind speed alert`);
     }
 
     if (dstStatus === "Severe Storm" || dstStatus === "Major Storm") {
       warnings.push(`Dst storm alert: ${dstStatus}`);
     }
 
-    if (warnings.length === 0) {
+    const currentState = {
+      bzStatus,
+      swStatus,
+      dstStatus,
+    };
+
+    const previousState = prevWarningState.current;
+    const statusChanged =
+      currentState.bzStatus !== previousState.bzStatus ||
+      currentState.swStatus !== previousState.swStatus ||
+      currentState.dstStatus !== previousState.dstStatus;
+
+    const wasWarningActive =
+      previousState.bzStatus === "Warning" ||
+      previousState.swStatus === "HSSWS" ||
+      previousState.dstStatus === "Severe Storm" ||
+      previousState.dstStatus === "Major Storm";
+
+    const isWarningActive =
+      bzStatus === "Warning" ||
+      swStatus === "HSSWS" ||
+      dstStatus === "Severe Storm" ||
+      dstStatus === "Major Storm";
+
+    if (!statusChanged) {
       return;
     }
 
-    const fingerprint = `${bzStatus}-${swStatus}-${dstStatus}-${lastBzData?.bz ?? "-"}-${lastSwData?.speed ?? "-"}-${lastDstData?.dst ?? "-"}`;
-    if (fingerprint === lastNotificationFingerprint) {
+    prevWarningState.current = currentState;
+
+    if (!isWarningActive) {
       return;
     }
 
-    setLastNotificationFingerprint(fingerprint);
-    addNotification("Space Weather Warning", warnings.join(" • "));
-  }, [bzStatus, swStatus, dstStatus, lastBzData?.bz, lastSwData?.speed, lastDstData?.dst, addNotification, lastNotificationFingerprint]);
+    if (wasWarningActive && isWarningActive) {
+      // only notify again when the severity level changes
+      const warningLevelChanged =
+        previousState.bzStatus !== bzStatus ||
+        previousState.swStatus !== swStatus ||
+        previousState.dstStatus !== dstStatus;
+
+      if (!warningLevelChanged) {
+        return;
+      }
+    }
+
+    if (warnings.length > 0) {
+      addNotification(
+        "Space Weather Warning",
+        warnings.join(" • "),
+      );
+    }
+  }, [bzStatus, swStatus, dstStatus, addNotification]);
 
   const isStormActive = storm && storm?.remainingHours > 0;
   const remaining = storm?.remainingHours ?? 0;

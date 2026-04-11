@@ -47,6 +47,9 @@ const AdminHeader = ({ className, onMenuClick, theme, onThemeToggle }: AdminHead
             height="30"
             src="https://img.icons8.com/ios-glyphs/30/line-chart--v1.png"
             alt="line-chart--v1"
+            style={{ 
+                filter: theme === 'dark' ? 'invert(1)' : 'none'
+            }}
           />
           <span className={cn('text-lg font-extrabold text-[var(--foreground)] flex justify-center')}>GIOSTORM</span>
         </div>
