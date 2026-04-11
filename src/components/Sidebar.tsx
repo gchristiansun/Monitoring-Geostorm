@@ -33,7 +33,7 @@ const Icon = ({ name }: { name: string }) => {
 const AdminSidebar = ({ isOpen = false, onClose }: AdminSidebarProps) => {
 	return (
 		<>
-			<div
+			<button
 				className={cn(
 					'fixed inset-0 z-[50] bg-black/30 transition-opacity md:hidden',
 					isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
