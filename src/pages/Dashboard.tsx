@@ -146,7 +146,7 @@ export default function Dashboard() {
             })
             .catch((err) => {
             console.error(err);
-            setSwLoading(false);
+            setBzLoading(false);
             });
         };
 
