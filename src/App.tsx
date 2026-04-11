@@ -1,8 +1,11 @@
 import Router from './routes/Router'
+import { NotificationProvider } from './contexts/NotificationContext'
 
 const App = () => {
   return (
-    <Router />
+    <NotificationProvider>
+      <Router />
+    </NotificationProvider>
   )
 }
 

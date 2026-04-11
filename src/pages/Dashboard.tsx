@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../layouts/Layout";
 import Card from "../components/Card";
 import Dropdown from "../components/DropdownButton";
@@ -7,8 +7,8 @@ import SWSChart from "../components/SWSChart";
 import BzChart from "../components/BzChart";
 import LoadingSpinner from "../components/LoadingSpinner";
 import StatusCircle from "../components/StatusCircle";
-import  { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import React from "react";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useNotifications } from "../contexts/NotificationContext";
 
 type APIDSTData = {
   datetime: string;
@@ -79,6 +79,8 @@ export default function Dashboard() {
         const saved = localStorage.getItem("dropdown-selected");
         return saved || "Today";
     });
+    const { addNotification } = useNotifications();
+    const [lastNotificationFingerprint, setLastNotificationFingerprint] = useState<string>("");
 
     useEffect(() => {
         const fetchData = () => {
@@ -354,6 +356,34 @@ export default function Dashboard() {
   const lastDstData = dstData.at(-1);
   const lastSwData = swData.at(-1);
   const lastBzData = bzData.at(-1);
+
+  useEffect(() => {
+    const warnings: string[] = [];
+
+    if (bzStatus === "Warning") {
+      warnings.push(`IMF Bz warning: ${lastBzData?.bz ?? "unknown"} nT`);
+    }
+
+    if (swStatus === "HSSWS") {
+      warnings.push(`Solar wind speed alert: ${lastSwData?.speed ?? "unknown"} Km/s`);
+    }
+
+    if (dstStatus === "Severe Storm" || dstStatus === "Major Storm") {
+      warnings.push(`Dst storm alert: ${dstStatus}`);
+    }
+
+    if (warnings.length === 0) {
+      return;
+    }
+
+    const fingerprint = `${bzStatus}-${swStatus}-${dstStatus}-${lastBzData?.bz ?? "-"}-${lastSwData?.speed ?? "-"}-${lastDstData?.dst ?? "-"}`;
+    if (fingerprint === lastNotificationFingerprint) {
+      return;
+    }
+
+    setLastNotificationFingerprint(fingerprint);
+    addNotification("Space Weather Warning", warnings.join(" • "));
+  }, [bzStatus, swStatus, dstStatus, lastBzData?.bz, lastSwData?.speed, lastDstData?.dst, addNotification, lastNotificationFingerprint]);
 
   const isStormActive = storm && storm?.remainingHours > 0;
   const remaining = storm?.remainingHours ?? 0;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AdminHeader from "../components/Header";
+import AdminHeader from "../components/HeaderNew";
 import AdminSidebar from "../components/Sidebar";
 import type { PropsWithChildren } from "react";
 
