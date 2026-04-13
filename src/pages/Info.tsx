@@ -27,7 +27,7 @@ export default function Info() {
                                     </p>
                                     <p className="mt-2">
                                         Data sourced from the: 
-                                        <a href="https://wdc.kugi.kyoto-u.ac.jp/index.html"> 
+                                        <a href="https://wdc.kugi.kyoto-u.ac.jp/index.html" target="blank"> 
                                             World Data Center for Geomagnetism, Kyoto
                                             <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
                                         </a>
@@ -40,7 +40,7 @@ export default function Info() {
                                     </p>
                                     <p className="mt-2">
                                         Data sourced from the: 
-                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind"> 
+                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind" target="blank"> 
                                             National Oceanic and Atmospheric Administration
                                             <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
                                         </a>
@@ -54,7 +54,7 @@ export default function Info() {
                                     </p>
                                     <p className="mt-2">
                                         Data sourced from the: 
-                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind"> 
+                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind" target="blank"> 
                                             National Oceanic and Atmospheric Administration
                                             <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
                                         </a>

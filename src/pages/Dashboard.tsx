@@ -212,6 +212,11 @@ export default function Dashboard() {
       return Date.UTC(year, month, day, 0, 0, 0);
     };
 
+    const dummyDstData: DSTData[] = [
+      { time: new Date("2024-06-01T00:00:00Z"), dst: -100 },
+      { time: new Date("2024-06-01T01:00:00Z"), dst: -200 },
+    ]
+
     const getUtcStartTime = (now: Date, daysAgo: number): number => {
       const startOfToday = getUtcStartOfDay(now);
       return startOfToday - daysAgo * 24 * 60 * 60 * 1000;
@@ -315,7 +320,7 @@ export default function Dashboard() {
   const filteredSWSData = getFilteredSWData(swData, selected);
   const filteredBzData = getFilteredBzData(bzData, selected);
 
-  const dstStatus = getLatestDSTStatus(dstData);
+  const dstStatus = getLatestDSTStatus(dummyDstData);
   const swStatus = getLatestSWStatus(swData);
   const bzStatus = getLatestBzStatus(bzData);
 
