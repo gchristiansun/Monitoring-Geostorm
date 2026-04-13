@@ -1,4 +1,5 @@
 import Layout from "../layouts/Layout";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 
 export default function Info() {
     return (
@@ -26,7 +27,10 @@ export default function Info() {
                                     </p>
                                     <p className="mt-2">
                                         Data sourced from the: 
-                                        <a href="https://wdc.kugi.kyoto-u.ac.jp/index.html"> World Data Center for Geomagnetism, Kyoto</a>
+                                        <a href="https://wdc.kugi.kyoto-u.ac.jp/index.html"> 
+                                            World Data Center for Geomagnetism, Kyoto
+                                            <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
+                                        </a>
                                     </p>
                                 </div>
                                 <div className="rounded-2xl bg-[var(--background)] border border-[var(--border)] p-5">
@@ -36,7 +40,11 @@ export default function Info() {
                                     </p>
                                     <p className="mt-2">
                                         Data sourced from the: 
-                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind"> National Oceanic and Atmospheric Administration</a>
+                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind"> 
+                                            National Oceanic and Atmospheric Administration
+                                            <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
+                                        </a>
+                                        
                                     </p>
                                 </div>
                                 <div className="rounded-2xl bg-[var(--background)] border border-[var(--border)] p-5">
@@ -46,7 +54,10 @@ export default function Info() {
                                     </p>
                                     <p className="mt-2">
                                         Data sourced from the: 
-                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind"> National Oceanic and Atmospheric Administration</a>
+                                        <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind"> 
+                                            National Oceanic and Atmospheric Administration
+                                            <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
+                                        </a>
                                     </p>
                                 </div>
                             </div>

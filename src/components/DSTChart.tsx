@@ -180,7 +180,7 @@ function DSTChart({ data, period = "7 Days" }: Props) {
         />
 
         <Brush
-          dataKey="index"
+          dataKey="day"
           height={15}
           stroke="#ff0000"
           travellerWidth={8}
