@@ -26,7 +26,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: black;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -61,7 +61,7 @@
   --secondary: #1f2937;
   --secondary-foreground: #f8fafc;
   --muted: #334155;
-  --muted-foreground: #94a3b8;
+  --muted-foreground: white;
   --accent: #25d366;
   --accent-foreground: #0f172a;
   --destructive: #dc2626;
@@ -100,4 +100,23 @@
   html {
     font-size: 90%;
   }
+}
+
+/* Tooltip styling for Recharts */
+.recharts-default-tooltip {
+  background-color: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+.recharts-tooltip-label {
+  color: var(--muted-foreground) !important;
+}
+
+.recharts-tooltip-item {
+  color: var(--foreground) !important;
 }

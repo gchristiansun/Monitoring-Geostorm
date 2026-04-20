@@ -42,7 +42,7 @@ const AdminHeader = ({ className, onMenuClick, theme, onThemeToggle }: AdminHead
         </button>
 
         <div className="flex items-center w-60 gap-2">
-          <img
+          {/* <img
             width="30"
             height="30"
             src="https://img.icons8.com/ios-glyphs/30/line-chart--v1.png"
@@ -50,7 +50,7 @@ const AdminHeader = ({ className, onMenuClick, theme, onThemeToggle }: AdminHead
             style={{ 
                 filter: theme === 'dark' ? 'invert(1)' : 'none'
             }}
-          />
+          /> */}
           <span className={cn('text-lg font-extrabold text-[var(--foreground)] flex justify-center')}>GIOSTORM</span>
         </div>
 

@@ -157,8 +157,8 @@ function SWSChart({ data, period = "7 Days" }: Props) {
         </YAxis>
 
         <Tooltip
-          wrapperStyle={{ backgroundColor: 'var(--card)', color: 'var(--foreground)', borderColor: 'var(--border)' }}
-          contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          wrapperStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', outline: 'none' }}
+          contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)', padding: '8px' }}
           labelStyle={{ color: 'var(--muted-foreground)' }}
           formatter={(value) => {
             if (Array.isArray(value)) {

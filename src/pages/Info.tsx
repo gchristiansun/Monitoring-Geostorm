@@ -10,7 +10,7 @@ export default function Info() {
                     <div className="flex flex-col gap-3 mb-4">
                         <h1 className="text-3xl font-semibold">Information</h1>                        
                         <p className="text-[var(--muted-foreground)] leading-7">
-                            This monitoring dashboard displays geomagnetic and solar wind conditions using three data streams: the Dst index, Solar Wind Speed, and IMF Bz. The information below explains the data sources, thresholds, and how the MUF depression warning system is derived.
+                            This monitoring dashboard displays geomagnetic and solar wind conditions using three data streams: the Dst index, Solar Wind Speed, and IMF Bz. <span className="font-bold">GIOSTORM</span> stands for <span className="font-bold">Geo-Ionospheric Storm and Early Warning System</span>. The information below explains the data sources, thresholds, and how the MUF depression warning system is derived.
                         </p>     
                     </div>          
                     <div className="flex flex-col gap-3">
@@ -28,7 +28,7 @@ export default function Info() {
                                     <p className="mt-2">
                                         Data sourced from the: 
                                         <a href="https://wdc.kugi.kyoto-u.ac.jp/index.html" target="blank"> 
-                                            World Data Center for Geomagnetism, Kyoto
+                                            <span className="underline">World Data Center for Geomagnetism, Kyoto</span>
                                             <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
                                         </a>
                                     </p>
@@ -41,7 +41,7 @@ export default function Info() {
                                     <p className="mt-2">
                                         Data sourced from the: 
                                         <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind" target="blank"> 
-                                            National Oceanic and Atmospheric Administration
+                                            <span className="underline">National Oceanic and Atmospheric Administration</span>
                                             <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
                                         </a>
                                         
@@ -55,7 +55,7 @@ export default function Info() {
                                     <p className="mt-2">
                                         Data sourced from the: 
                                         <a href="https://www.swpc.noaa.gov/products/real-time-solar-wind" target="blank"> 
-                                            National Oceanic and Atmospheric Administration
+                                            <span className="underline">National Oceanic and Atmospheric Administration</span>
                                             <ArrowTopRightOnSquareIcon className="inline w-4 h-4 ml-1" />
                                         </a>
                                     </p>
@@ -134,7 +134,7 @@ export default function Info() {
                                     Early warning formula:
                                 </p>
                                 <p className="rounded-2xl bg-[var(--background)] border border-[var(--border)] p-4 text-[var(--muted-foreground)]">
-                                    10 jam - (waktu onset ke titik kritis -100 nT)
+                                    10 hours - (time from onset to the critical point -100 nT)
                                 </p>
                                 <p>
                                     If the remaining warning time is positive, the system reports an active MUF depression warning. When the warning time reaches zero, the alert is considered expired.
