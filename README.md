@@ -71,5 +71,15 @@ export default defineConfig([
   },
 ])
 ```
+## How to install
+```
+npm -i
+```
 
-
+## Setup Vercel
+```
+vercel login
+```
+```
+vercel
+```
