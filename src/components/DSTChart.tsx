@@ -9,7 +9,7 @@ import {
     ResponsiveContainer,
     Label,
     Brush,
-    ReferenceLine
+    ReferenceLine,
 } from "recharts";
 
 type DSTData = {
@@ -184,6 +184,7 @@ function DSTChart({ data, period = "7 Days" }: Props) {
           height={15}
           stroke="#ff0000"
           travellerWidth={8}
+          fill="var(--background)"
         />
 
         <ReferenceLine y={-100} stroke="#ff0000" strokeDasharray="3 3" />

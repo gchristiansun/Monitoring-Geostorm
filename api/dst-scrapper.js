@@ -70,8 +70,7 @@ export default async function handler(req, res) {
 
           for (let i = 0; i < sliced.length; i++) {
             const val = sliced[i];        
-            if (val.length > 4) {
-              console.warn("STOP DST line at hour:", i, val);
+            if (val.length > 4) {        
               break;
             }
             const value = Number(val);

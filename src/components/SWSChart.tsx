@@ -182,6 +182,7 @@ function SWSChart({ data, period = "7 Days" }: Props) {
           height={15}
           stroke="#8a2be2"
           travellerWidth={8}
+          fill="var(--background)"
         />
 
         <ReferenceLine y={500} stroke="#ff0000" strokeDasharray="3 3" />
