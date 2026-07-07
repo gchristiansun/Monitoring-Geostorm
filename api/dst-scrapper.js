@@ -64,31 +64,27 @@ export default async function handler(req, res) {
 
           const { year, monthIndex, day } = header;
 
-          const valuesPart = line.substring(20).trim();
-          const values = valuesPart.split(/\s+/);
-          const sliced = values.slice(0, 24);
+          const valuesPart = line.substring(20);
 
-          for (let i = 0; i < sliced.length; i++) {
-            const val = sliced[i];        
-            if (val.length > 4) {        
-              break;
-            }
-            const value = Number(val);
+          for (let i = 0; i < 24; i++) {
+              const chunk = valuesPart.substring(i * 4, i * 4 + 4).trim();
 
-            let finalValue = null;
+              if (!chunk) continue;
 
-            if (!Number.isNaN(value) && value > -500 && value < 100) {
-              finalValue = value;
-            }
+              const value = Number(chunk);
 
-            const dateObj = new Date(
-              Date.UTC(year, monthIndex, day, i)
-            );
+              let finalValue = null;
 
-            allData.push({
-              datetime: dateObj.toISOString(),
-              dst: finalValue, 
-            });
+              if (!Number.isNaN(value) && value > -500 && value < 100) {
+                  finalValue = value;
+              }
+
+              allData.push({
+                  datetime: new Date(
+                      Date.UTC(year, monthIndex, day, i)
+                  ).toISOString(),
+                  dst: finalValue,
+              });
           }
         }
       } catch (err) {
@@ -113,10 +109,16 @@ export default async function handler(req, res) {
     const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     const nowTime = Date.now();
 
-    const filtered = uniqueData.filter(
-      (d) =>
-        nowTime - new Date(d.datetime).getTime() <= SEVEN_DAYS
-    );
+    // const filtered = uniqueData.filter(
+    //   (d) =>
+    //     nowTime - new Date(d.datetime).getTime() <= SEVEN_DAYS
+    // );
+
+    const filtered = uniqueData.filter((d) => {
+  const diff = nowTime - new Date(d.datetime).getTime();
+
+  return diff >= 0 && diff <= SEVEN_DAYS;
+});
 
     console.log("TOTAL RAW:", allData.length);
     console.log("UNIQUE:", uniqueData.length);

@@ -2,12 +2,14 @@ import { fetchData, parseValue } from "./fetch-data.js"
 
 const fetchSolarWindSpeed = () => {
   return fetchData(
-    "https://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json",
+    // "https://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json",
+    "https://services.swpc.noaa.gov/products/geospace/propagated-solar-wind.json",
     (row) => ({
-      time: new Date(row[0] + "Z"),
-      density: parseValue(row[1]),
-      speed: parseValue(row[2]),
+      time: new Date(row[0]),
+      density: parseValue(row[2]),
+      speed: parseValue(row[1]),
       temperature: parseValue(row[3]),
+      // propagated_time: parseValue(row[11])
     })
   );
 };

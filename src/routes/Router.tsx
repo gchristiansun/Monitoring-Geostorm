@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-
 import Dashboard from '../pages/Dashboard'
 import Dataset from '../pages/Dataset'
 import Info from '../pages/Info'
@@ -13,8 +12,6 @@ const AppRouter = () => {
 					<Navigate to="/dashboard" replace />
 				} 
 			/>
-
-			{/* Public routes */}
 			<Route 
 				path="/dashboard"
 				element={
@@ -33,7 +30,6 @@ const AppRouter = () => {
 					<Info />
 				}
 			/>
-
 		</Routes>
 	)
 }

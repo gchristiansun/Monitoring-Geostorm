@@ -41,16 +41,16 @@ const AdminHeader = ({ className, onMenuClick, theme, onThemeToggle }: AdminHead
           </svg>
         </button>
 
-        <div className="flex items-center w-60 gap-2">
-          {/* <img
+        <div className="flex items-center w-60 gap-3">
+          <img
             width="30"
             height="30"
-            src="https://img.icons8.com/ios-glyphs/30/line-chart--v1.png"
+            // src="./public/giostorm-logo-white.svg"
             alt="line-chart--v1"
-            style={{ 
-                filter: theme === 'dark' ? 'invert(1)' : 'none'
-            }}
-          /> */}
+            src={
+                theme === 'dark' ? '/public/giostorm-logo-white.svg' : '/public/giostorm-logo-black.svg'
+            }
+          />
           <span className={cn('text-lg font-extrabold text-[var(--foreground)] flex justify-center')}>GIOSTORM</span>
         </div>
 

@@ -160,7 +160,7 @@ export default function Dashboard() {
         (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
       );
 
-      for (let i = 0; i < sorted.length; i++) {
+      for (let i = sorted.length - 1; i >=0 ; i--) {
         if (sorted[i].dst <= -100) {          
           let maxDst = -Infinity;
           let onsetIndex = 0;
@@ -328,7 +328,10 @@ export default function Dashboard() {
     setStorm(analyzeStorm(dstData));
   }, [dstData]);
 
-  const lastDstData = dstData.at(-1);
+  // const lastDstData = dstData.at(-1);
+  const lastDstData = [...dstData]
+  .reverse()
+  .find(d => d.dst !== null);
   const lastSwData = swData.at(-1);
   const lastBzData = bzData.at(-1);
 
@@ -564,7 +567,7 @@ export default function Dashboard() {
             <div className="absolute inset-0 animate-pulse bg-red-800 opacity-10 z-0" />
           )}          
           <div className="relative z-10">
-            {!storm ? (
+            {!isStormActive ? (
               <p className="text-sm text-[var(--muted-foreground)]">No storm detected</p>
             ) : (
               <div className="space-y-2 text-sm text-[var(--foreground)] flex items-center justify-between">
