@@ -7,7 +7,7 @@ import {
 export default function Info() {
     return (
         <Layout>
-            <div className="flex flex-col h-full justify-between">
+            <div className="flex flex-col h-full justify-between">            
                 <div>
                     <style>{`summary::-webkit-details-marker { display: none; } summary::marker { display: none; } details[open] summary .info-arrow { transform: rotate(180deg); }`}</style>
                     <div className="flex flex-col gap-3 mb-4">

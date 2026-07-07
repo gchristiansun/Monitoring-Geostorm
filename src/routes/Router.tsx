@@ -3,7 +3,7 @@ import Dashboard from '../pages/Dashboard'
 import Dataset from '../pages/Dataset'
 import Info from '../pages/Info'
 
-const AppRouter = () => {
+const AppRouter = () => {	
 	return (
 		<Routes>
 			<Route 

@@ -48,7 +48,7 @@ const AdminHeader = ({ className, onMenuClick, theme, onThemeToggle }: AdminHead
             // src="./public/giostorm-logo-white.svg"
             alt="line-chart--v1"
             src={
-                theme === 'dark' ? '/public/giostorm-logo-white.svg' : '/public/giostorm-logo-black.svg'
+                theme === 'dark' ? '/giostorm-logo-white.svg' : '/giostorm-logo-black.svg'
             }
           />
           <span className={cn('text-lg font-extrabold text-[var(--foreground)] flex justify-center')}>GIOSTORM</span>
